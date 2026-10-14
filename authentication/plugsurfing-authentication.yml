@@ -1,0 +1,18 @@
+generated: '2026-10-14'
+method: searched
+generator: extract-docs-artifacts.py (local)
+source: https://developer.plugsurfing.com/docs/drive-api/authorization.md
+sources:
+- https://developer.plugsurfing.com/docs/drive-api/authorization.md
+- https://developer.plugsurfing.com/reference/getStripePublishableApiKey.md
+- https://developer.plugsurfing.com/docs/drive-api/authorization
+- https://developer.plugsurfing.com/docs/roam-ocpi/credentials-module.md
+description: Authentication
+schemes:
+- type: apiKey
+  name: X-API-Key
+  evidence: Every API request must include the API key in the `X-API-Key` header.
+  location: header
+  header: X-API-Key
+  how_to_obtain: You can obtain the API key from the Control Panel for both stage and production environments (ask your CSM for access).
+docs: https://developer.plugsurfing.com/docs/drive-api/authorization.md

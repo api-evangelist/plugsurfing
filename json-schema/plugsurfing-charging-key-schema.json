@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/plugsurfing/main/json-schema/plugsurfing-charging-key-schema.json",
+  "title": "ChargingKey",
+  "description": "Represents a charging key assigned to a user account.",
+  "x-generated": "2026-10-14",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKey",
+  "type": "object",
+  "required": [
+    "keyId",
+    "validFrom",
+    "validTo",
+    "type",
+    "enabled",
+    "created",
+    "updated"
+  ],
+  "properties": {
+    "keyId": {
+      "type": "string",
+      "description": "Identifier used for this charging key (`uid` in the case of a physical charging key)"
+    },
+    "referenceId": {
+      "type": "string",
+      "description": "Visual number for RFID and virtual keys, Plug and Charge identifier (PCID )for plug_and_charge keys"
+    },
+    "contractId": {
+      "type": "string",
+      "description": "Identifier used in the context of roaming"
+    },
+    "name": {
+      "type": "string",
+      "description": "Key name (usually set by end-users to name their keys when they have multiple ones)."
+    },
+    "validFrom": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when the charging key becomes valid."
+    },
+    "validTo": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when the charging key expires."
+    },
+    "type": {
+      "type": "string",
+      "description": "Possible values include, but aren't limited to: 'tag', 'card', 'virtual', 'plug_and_charge'."
+    },
+    "enabled": {
+      "type": "boolean",
+      "description": "Indicates if the key can start a session or not"
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when the charging key was created."
+    },
+    "updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when the charging key was last updated."
+    },
+    "whitelist": {
+      "$ref": "#/$defs/DriveApiChargingKeyWhitelistType",
+      "description": "Defines whether the CPO may allow a session for this charging key when it cannot get a response from the EMP, or must always rely on realtime authorization from the EMP. Possible values: ALLOWED_OFFLINE, NEVER."
+    }
+  },
+  "$defs": {
+    "DriveApiChargingKeyWhitelistType": {
+      "type": "string",
+      "enum": [
+        "ALLOWED_OFFLINE",
+        "NEVER"
+      ],
+      "description": "Defines when authorization of a charging key by the CPO is allowed.\nALLOWED_OFFLINE: CPO should use realtime authorization. But when the CPO cannot get a response from the eMSP, the CPO shall allow the charging key to be used.\nNEVER: Only realtime authorization is allowed. CPO shall always send a realtime authorization for any use of this charging key to the MSP."
+    }
+  }
+}

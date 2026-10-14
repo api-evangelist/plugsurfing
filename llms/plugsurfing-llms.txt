@@ -1,0 +1,122 @@
+# Plugsurfing Developer
+
+> Learn more about Plugsurfing's integration products, Drive API and Roam OCPI.
+
+- [Plugsurfing Developer Platform](https://developer.plugsurfing.com/home.md): Build EV charging experiences on Plugsurfing's managed roaming platform. Let your users connect to charging stations across Europe and the US with Drive API or Roam OCPI.
+- [Product Comparison](https://developer.plugsurfing.com/docs/introduction/plugsurfings-apis.md): Plugsurfing offers two integration products: Drive API and Roam OCPI. Compare their features to find the one that fits your business.
+- [Managed roaming](https://developer.plugsurfing.com/managed-roaming-with-plugsurfing.md)
+- [Drive API: Build a driver app](https://developer.plugsurfing.com/build-a-driver-app.md)
+- [Drive API: Integrate EV charging network into the car](https://developer.plugsurfing.com/integrate-ev-charging-network-into-the-car.md)
+- [Roam OCPI: Extend your network coverage](https://developer.plugsurfing.com/roam-ocpi-use-cases.md)
+- [Stage network](https://developer.plugsurfing.com/stage-network.md)
+- [Contact & support](https://developer.plugsurfing.com/contact-and-support.md)
+- [Changelog](https://developer.plugsurfing.com/changelog.md): Relevant information about updates to Drive API and Roam OCPI.
+- [Glossary](https://developer.plugsurfing.com/glossary.md)
+- [Fair usage policy](https://developer.plugsurfing.com/fair-usage-policy.md)
+- [SLA](https://developer.plugsurfing.com/sla.md)
+- [About Drive API](https://developer.plugsurfing.com/docs/drive-api/about-drive-api.md)
+- [Getting started](https://developer.plugsurfing.com/docs/drive-api/getting-started-with-drive-api.md)
+- [AI Integration Playbook](https://developer.plugsurfing.com/docs/drive-api/ai-integration-playbook.md)
+- [API key access & security](https://developer.plugsurfing.com/docs/drive-api/authorization.md)
+- [EMP mode](https://developer.plugsurfing.com/docs/drive-api/emp.md)
+- [MCP for AI agents](https://developer.plugsurfing.com/docs/drive-api/mcp-for-ai-agents.md)
+- [Verifying HMAC signature](https://developer.plugsurfing.com/docs/drive-api/verifying-hmac-signature.md)
+- [Webhooks](https://developer.plugsurfing.com/docs/drive-api/webhooks.md)
+- [Drive API control panel](https://developer.plugsurfing.com/docs/drive-api/drive-api-control-panel.md)
+- [Geosearch](https://developer.plugsurfing.com/docs/drive-api/geosearch.md)
+- [Integrating geosearch with client maps](https://developer.plugsurfing.com/docs/drive-api/geosearch-map-integration.md)
+- [Tesla specific requirements](https://developer.plugsurfing.com/docs/drive-api/tesla-specific.md)
+- [Mirroring the Plugsurfing network in your system](https://developer.plugsurfing.com/untitled-page-2.md)
+- [Users](https://developer.plugsurfing.com/docs/drive-api/user.md)
+- [User groups](https://developer.plugsurfing.com/docs/drive-api/user-groups.md)
+- [Charging Keys](https://developer.plugsurfing.com/docs/drive-api/charging-keys.md)
+- [Plug&Charge](https://developer.plugsurfing.com/docs/drive-api/plug-and-charge.md)
+- [Payment integration options](https://developer.plugsurfing.com/docs/drive-api/payment-integrations.md)
+- [Payments with Plugsurfing's PSP](https://developer.plugsurfing.com/docs/drive-api/payments.md)
+- [Vouchers](https://developer.plugsurfing.com/docs/drive-api/vouchers.md)
+- [Sessions](https://developer.plugsurfing.com/docs/drive-api/sessions.md)
+- [Session pre-authorization](https://developer.plugsurfing.com/docs/drive-api/session-pre-authorization.md)
+- [Events](https://developer.plugsurfing.com/docs/drive-api/events.md)
+- [CDR forwarding](https://developer.plugsurfing.com/docs/drive-api/cdr.md)
+- [Fleet Card Orders](https://developer.plugsurfing.com/docs/drive-api/fleet-card-orders.md)
+- [Fleet Management](https://developer.plugsurfing.com/docs/drive-api/fleet-management.md)
+- [Rectangle search](https://developer.plugsurfing.com/reference/searchLocationsByRectangle.md): Find charging locations within a specified rectangle defined by two diagonal points. The rectangle coordinates are passed via the `topLatitude`, `bottomLatitude`, `leftLongitude`, and `rightLongitude` query parameters; the request body contains only filters and options. Returns up to 300 locations.…
+- [Radius search](https://developer.plugsurfing.com/reference/searchLocationsByRadius.md): Find charging locations within a specified radius around a geographic point. The center point, distance, limit, and aggregation settings are passed via query parameters; the request body contains only filters. Use an empty JSON body (`{}`) when no filters are needed. Returns up to 300 locations sort…
+- [Route search](https://developer.plugsurfing.com/reference/searchLocationsByRoute.md): Search for charging locations along a route. The max number of points in a route is 300. Prices are not included. To get prices for a given location, use Get location by id
+- [Get location by id](https://developer.plugsurfing.com/reference/getLocationById.md): Get location details, including prices. Only one of userId or keyIdentifier can be provided in a single request. If none are provided, default prices are returned. For more information on prices, check /docs/drive-api/geosearch#explanation
+- [Get location live data](https://developer.plugsurfing.com/reference/getLocationLiveData.md): Returns live charging data for the EVSEs of a location that are in use, including since when each EVSE has had its current live status. The `charge_point_statuses` keys match the EVSE `uid` values returned by Get location by id. EVSEs without live data are omitted. Returns `404` when the location is…
+- [Batch locations](https://developer.plugsurfing.com/reference/getLocationsBatch.md): Retrieve locations in batches. Locations are returned sorted by last_updated timestamp in ascending order. Prices are not included, to get prices for a given location, use Get location by id. Best practices
+- [Get list of operators](https://developer.plugsurfing.com/reference/listOperators.md): Returns the list of Charging Point Operators (CPOs) whose chargers are available through the geosearch endpoints. Can be used to let users filter on specific operators
+- [Create user](https://developer.plugsurfing.com/reference/createUser.md): Only the `id` field is required (any string is accepted) when you are the Merchant on Record. If Plugsurfing is the Merchant on Record the `email` field is mandatory as well. Use the same user ID from your system for consistency
+- [Read user details](https://developer.plugsurfing.com/reference/getUser.md): Getting user data based on passed userId
+- [Update user details](https://developer.plugsurfing.com/reference/updateUser.md): This endpoints lets you update a given user's email, VAT number and billing address.
+- [Remove user](https://developer.plugsurfing.com/reference/deleteUser.md): Disables all charging keys of the user immediately and schedules the user's deletion for 30 days later. This delay ensures that late-arriving Charging Detail Records (CDRs) can still be linked to the user. Note: If Plugsurfing handles payments, users with outstanding debt cannot be deleted.
+- [Add user to user group](https://developer.plugsurfing.com/reference/createUserGroupMembership.md): Creates a membership link between the user and the specified user group.
+- [Remove user from user group](https://developer.plugsurfing.com/reference/deleteUserGroupMembership.md): Deletes the membership link between the user and the specified user group.
+- [Activate a charging key](https://developer.plugsurfing.com/reference/activateUserChargingKey.md): Activates a charging key for a specific user. The key must exist and be unassigned. Once activated, the key can be used to start charging sessions.
+- [Edit a charging key](https://developer.plugsurfing.com/reference/updateUserChargingKey.md): Modify a charging key's properties. You can change the key's name and enable/disable it. Disabling a key immediately prevents it from being used for charging. Important notes: - Only non-null fields in the request are applied - Disabling a key takes effect immediately across all charging stations -…
+- [Get user's charging keys](https://developer.plugsurfing.com/reference/listUserChargingKeys.md): Retrieves all charging keys associated with a specific user. This includes both active and inactive keys, physical and virtual keys. The response contains detailed information about each key including its status, type, and validity period.
+- [Create a charging key](https://developer.plugsurfing.com/reference/createUserChargingKey.md): Creates a new charging key for a specified user. Important notes: - The key will be created in an enabled state by default - Contract id, keyIdentifier and visualNumber must be provided.
+- [Create a Plug&Charge key](https://developer.plugsurfing.com/reference/createPncChargingKey.md): Creates a Plug&Charge charging key for a user.
+- [Reserve a charging key](https://developer.plugsurfing.com/reference/createChargingKeyReservation.md): Create connection between uid (physical chip id) and visualNumber (called later 'referenceId'), so that the latter can be used for activation.
+- [Create charging key order](https://developer.plugsurfing.com/reference/createChargingKeyOrder.md): Orders a charging key for the given user. Requires the product to be configured on Plugsurfing side. Therefore, we ask you to reach out to us before using it.
+- [Get list of charging key orders](https://developer.plugsurfing.com/reference/listChargingKeyOrders.md): Returns the list of ordered charging keys by a given user.
+- [Get order receipt URL](https://developer.plugsurfing.com/reference/getChargingKeyOrderReceiptUrl.md): Returns an absolute URL to the order's receipt. The receipt will be in PDF format.
+- [Get pricing information per country](https://developer.plugsurfing.com/reference/getChargingKeyOrderConfiguration.md): Returns the pricing information for ordering charging keys per country. Each country has to be set up manually for your organization in order for it to show up here.
+- [Get user's payment methods](https://developer.plugsurfing.com/reference/listPaymentOptions.md): Retrieves all payment methods associated with a user.
+- [Add a new payment method](https://developer.plugsurfing.com/reference/createPaymentOption.md): Adds a new payment method to a user's account. Important notes: - A user can only have one payment method at a time.
+- [Get Stripe SetupIntent to confirm a payment method](https://developer.plugsurfing.com/reference/createStripeSetupIntent.md): Creates and returns a Stripe SetupIntent client secret so the user can securely attach a new payment method.
+- [Delete user's payment option](https://developer.plugsurfing.com/reference/deletePaymentOption.md): Removes a stored payment option from the specified user when the payment method is eligible for deletion.
+- [Get user's prepaid balance](https://developer.plugsurfing.com/reference/listPrepaid.md): Retrieves the current prepaid balance for a specific user. Returns a breakdown of balances with their sources (e.g. Credit, Voucher) and expiry dates, as well as a total balance.
+- [Get Stripe publishable API key](https://developer.plugsurfing.com/reference/getStripePublishableApiKey.md): Returns the Stripe publishable API key to be used with your Stripe client-side code, when confirming `SetupIntent` or creating a `PaymentMethod`.
+- [Redeem a voucher code](https://developer.plugsurfing.com/reference/redeem.md): Redeems a voucher for the user and returns the product granted by the voucher campaign.
+- [Get charging session history](https://developer.plugsurfing.com/reference/listSessions.md): Retrieves the charging session history for a specific user. The response includes detailed information about each session including: - Session status and duration - Energy consumption - Cost and payment details - Charging location information  The results can be filtered by: - Session status - Speci…
+- [Get details of a specific charging session](https://developer.plugsurfing.com/reference/getSessionById.md): Retrieves detailed information about a specific charging session. This includes: - Session status (completed or in-progress) - Energy consumption and duration - Cost and payment status - Charging location details - Charging key used  This endpoint can be used to track both completed sessions and mon…
+- [Get a session receipt by session id](https://developer.plugsurfing.com/reference/getSessionReceipt.md): Get session receipt. The response includes a time-limited URL to access the receipt. A new URL is required after expiration. Receipts are not available for sessions with a price of 0, and a 404 error will be returned if requested. The receipt will be in PDF format.
+- [Retry session payment](https://developer.plugsurfing.com/reference/retrySessionPayment.md): Use this endpoint to retry an unsuccessful session payment
+- [Start a remote charging session](https://developer.plugsurfing.com/reference/startRemoteSession.md): Start a remote charging session. Important implementation details: 1. Only chargers with REMOTE_START_STOP_CAPABLE capability can be used 2. Allow up to 2 minutes for session to transition from WAITING_TO_START to STARTED 3. Wait at least 1 minute before retrying failed starts 4. Multiple ongoing se…
+- [Stop a remote charging session](https://developer.plugsurfing.com/reference/stopRemoteSession.md): Stop a remote charging session. Only sessions started remotely (chargingKeyType=virtual) can be stopped remotely. Important implementation details: 1. Session may be stopped locally even if started remotely 2. Events like SESSION_STOPPED or SESSION_COMPLETED may be received without calling stop 3. I…
+- [Receive Session Event](https://developer.plugsurfing.com/reference/sessionEventsWebhook.md): Plugsurfing sends session event notifications to the configured webhook URL. Known event names are SESSION_STARTED, SESSION_STOPPED, SESSION_COMPLETE, SESSION_START_FAILED, SESSION_STOP_FAILED, and SESSION_FEE_INCURRING. New event names may be introduced without prior notice. Events are sent once an…
+- [Receive Forwarded CDR](https://developer.plugsurfing.com/reference/cdrForwardingWebhook.md): Plugsurfing sends Charging Detail Records (CDRs) when you are set to clear the sessions. If a request does not receive a 200 response (or times out), Plugsurfing retries nightly for up to 7 days using the same requestId for idempotency.
+- [Search locations around a point](https://developer.plugsurfing.com/reference/searchEmpLocationsByRadius.md): Search for charging locations within a specified radius around a geographic point. The center point is passed via the `latitude` and `longitude` query parameters; the request body contains only filters and options. Returns up to 300 locations.
+- [Search locations within a rectangle](https://developer.plugsurfing.com/reference/searchEmpLocationsByRectangle.md): Search for charging locations within a specified rectangle defined by two diagonal points. The rectangle coordinates are passed via the `topLatitude`, `bottomLatitude`, `leftLongitude`, and `rightLongitude` query parameters; the request body contains only filters and options. Returns up to 300 locat…
+- [Search for locations along a route](https://developer.plugsurfing.com/reference/searchEmpLocationsByRoute.md): Search for locations along a route. The max number of points in a route is 300.
+- [Get location by id](https://developer.plugsurfing.com/reference/getEmpLocationById.md): Returns detailed location data for a single charging location, with optional pricing context. Only one of keyIdentifier or fleetId can be provided in a single request. If none are provided, default prices are returned.
+- [Get location live data](https://developer.plugsurfing.com/reference/getEmpLocationLiveData.md): Returns live charging data for the EVSEs of a location that are in use, including since when each EVSE has had its current live status. The `charge_point_statuses` keys match the EVSE `uid` values returned by Get location by id. EVSEs without live data are omitted. Returns `404` when the location is…
+- [Get batch of locations](https://developer.plugsurfing.com/reference/getEmpLocationsBatch.md): Returns a paginated batch of charging locations for EMP integrations using cursor-based pagination.
+- [List available products](https://developer.plugsurfing.com/reference/getEmpProducts.md): Returns the products available for ordering.
+- [Create a fleet charging key order](https://developer.plugsurfing.com/reference/createEmpChargingKeyOrder.md): Creates a charging key order for a fleet organization.
+- [Fetch charging key orders](https://developer.plugsurfing.com/reference/listEmpChargingKeyOrders.md): Returns a list of charging key orders belonging to supported organizations.
+- [Mark an order as 'Assigned'](https://developer.plugsurfing.com/reference/assignEmpChargingKeyOrder.md): Mark order as 'Assigned'
+- [Create a fleet](https://developer.plugsurfing.com/reference/createFleet.md): Creates a new fleet organization. The fleetId must be unique and is required. An optional fleetName can be provided to give the fleet a human-readable name.
+- [Rename a fleet](https://developer.plugsurfing.com/reference/renameFleet.md): Renames an existing fleet. The fleet must exist, the caller must have access to that fleet, and a valid non-empty newName must be provided in the request body.
+- [Get fleet invitation codes](https://developer.plugsurfing.com/reference/getFleetInvitationCodes.md): Retrieves all active invitation codes for a fleet. These codes allow users to join the fleet.
+- [Get charging keys](https://developer.plugsurfing.com/reference/listEmpChargingKeys.md): Fetches charging keys belonging to a given fleet, or all charging keys if not fleet is specified.
+- [Create a charging key](https://developer.plugsurfing.com/reference/createEmpChargingKey.md): Creates a charging key with given key identifier, contract id and visual number.
+- [Rename a charging key](https://developer.plugsurfing.com/reference/renameEmpChargingKey.md): Renames a charging key given its key identifier
+- [Enable charging key](https://developer.plugsurfing.com/reference/enableEmpChargingKey.md): Enables a charging key given its key identifier. The charging key needs to exist, otherwise a 404 HTTP error is returned
+- [Disable charging key](https://developer.plugsurfing.com/reference/disableEmpChargingKey.md): Disables a charging key given its keyIdentifier. It will immediately make Plugsurfing reject all charging session requests made with this key. The charging key needs to exist, otherwise a 404 HTTP error is returned. Note: Some CPOs store whitelisted keys, so in some rare cases it might take a bit lo…
+- [Transfer a charging key](https://developer.plugsurfing.com/reference/transferEmpChargingKey.md): Transfers a charging key from its current fleet to another existing fleet. The target fleet must belong to the same EMP parent as the source fleet and must already have an external payment option configured.
+- [Start a remote session](https://developer.plugsurfing.com/reference/startRemoteSessionEmp.md): Starts a remote charging session with the given charging key on the given connector.  If a user has `CREDIT_CARD` payment method, and 3DS challenge mode is set to `CHALLENGE`, then `threeDSClientSecret` might be present instead of `sessionId`, which your frontend needs to prompt the user to sign. Af…
+- [Stop a remote session](https://developer.plugsurfing.com/reference/stopRemoteSessionEmp.md): Stops the given remote charging session. Only sessions started remotely can be remotely stopped.
+- [Get a session receipt by session id](https://developer.plugsurfing.com/reference/getSessionReceiptEmp.md): Get session receipt. The response includes a time-limited URL to access the receipt. A new URL is required after expiration. Receipts are not available for sessions with a price of 0, and a 404 error will be returned if requested. The receipt will be in PDF format.
+- [Get session by id](https://developer.plugsurfing.com/reference/getSessionByIdEmp.md): Returns charging session details
+- [About Roam OCPI](https://developer.plugsurfing.com/docs/roam-ocpi/about-roam-ocpi.md): Plugsurfing's Roam OCPI is a separate product from Drive API and provides a managed roaming integration through OCPI 2.2.1.
+- [Roam OCPI FAQ](https://developer.plugsurfing.com/docs/roam-ocpi/roam-ocpi-faq.md): Quick answers to common implementation questions about Plugsurfing Roam OCPI.
+- [Accessing Roam OCPI](https://developer.plugsurfing.com/docs/roam-ocpi/accessing-the-api.md)
+- [Module Overview](https://developer.plugsurfing.com/docs/roam-ocpi/module-overview.md): Supported pull and push behavior for each Roam OCPI module, including the main deviations from standard OCPI.
+- [Credentials Module](https://developer.plugsurfing.com/docs/roam-ocpi/credentials-module.md)
+- [Locations Module](https://developer.plugsurfing.com/docs/roam-ocpi/locations-module.md)
+- [Tariffs Module](https://developer.plugsurfing.com/docs/roam-ocpi/tariffs-module.md)
+- [Tokens Module](https://developer.plugsurfing.com/docs/roam-ocpi/tokens-module.md)
+- [Commands Module](https://developer.plugsurfing.com/docs/roam-ocpi/commands-module.md)
+- [Sessions Module](https://developer.plugsurfing.com/docs/roam-ocpi/sessions-module.md)
+- [CDRs Module](https://developer.plugsurfing.com/docs/roam-ocpi/cdrs-module.md)
+- [Tesla network via Roam OCPI](https://developer.plugsurfing.com/docs/roam-ocpi/tesla-network-via-roam-ocpi.md)
+
+## OpenAPI Specs
+
+- [openapi](/reference/openapi.json)
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

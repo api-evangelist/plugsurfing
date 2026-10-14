@@ -1,0 +1,545 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/plugsurfing/main/json-schema/plugsurfing-location-schema.json",
+  "title": "Location",
+  "x-generated": "2026-10-14",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/Location",
+  "required": [
+    "id",
+    "name",
+    "coordinates",
+    "address",
+    "evses",
+    "country",
+    "city",
+    "last_updated"
+  ],
+  "type": "object",
+  "properties": {
+    "id": {
+      "minLength": 0,
+      "type": "string"
+    },
+    "name": {
+      "maxLength": 255,
+      "minLength": 0,
+      "type": "string",
+      "description": "Human-readable name of the charging location"
+    },
+    "coordinates": {
+      "$ref": "#/$defs/Coordinates",
+      "description": "Geographic coordinates of the charging location. These values are returned as strings."
+    },
+    "evses": {
+      "type": "array",
+      "description": "List of Electric Vehicle Supply Equipment (EVSE) at this location. Each EVSE may have multiple connectors.",
+      "items": {
+        "$ref": "#/$defs/Evse"
+      }
+    },
+    "parking_type": {
+      "description": "Parking type for the charging location.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/ParkingType"
+        }
+      ]
+    },
+    "operator": {
+      "$ref": "#/$defs/BusinessDetails",
+      "description": "Information about the Charging Point Operator (CPO) managing this location"
+    },
+    "operator_display_name": {
+      "description": "An enhanced display name of the operator. This may be the operator name as found in the operator object, or the sub-operator of the location. When showing the location to end users, this is the operator name that should be shown.",
+      "type": "string"
+    },
+    "opening_times": {
+      "$ref": "#/$defs/OpeningTimes",
+      "description": "Operating hours of the charging location"
+    },
+    "directions": {
+      "type": "array",
+      "description": "Navigation instructions to help locate the charging points, available in multiple languages",
+      "items": {
+        "$ref": "#/$defs/DisplayText"
+      }
+    },
+    "country": {
+      "maxLength": 3,
+      "minLength": 3,
+      "description": "Three-letter country code (ISO 3166-1 alpha-3) where the charging location is situated",
+      "type": "string"
+    },
+    "state": {
+      "description": "State, region, or province where the charging location is situated. Format varies by country.",
+      "type": "string"
+    },
+    "city": {
+      "type": "string",
+      "description": "City where the charging location is situated"
+    },
+    "postal_code": {
+      "type": "string",
+      "description": "Postal code of the charging location"
+    },
+    "address": {
+      "type": "string",
+      "description": "Street address of the charging location"
+    },
+    "openNow": {
+      "type": "boolean",
+      "description": "Indicates if the location is currently open based on opening_hours and local timezone. Use this for quick filtering of available locations."
+    },
+    "is_green_energy": {
+      "type": "boolean",
+      "description": "Indicates if the location uses renewable energy sources for charging, based on CPO-provided data"
+    },
+    "last_updated": {
+      "type": "string",
+      "description": "ISO 8601 timestamp of when this location's data was last updated. Use this to track changes and implement efficient polling."
+    }
+  },
+  "$defs": {
+    "BusinessDetails": {
+      "required": [
+        "id",
+        "name"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 100,
+          "minLength": 0,
+          "type": "string"
+        },
+        "hotline": {
+          "type": "string"
+        },
+        "external_id": {
+          "type": "string"
+        }
+      }
+    },
+    "Connector": {
+      "required": [
+        "id",
+        "standard",
+        "power_type"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "minLength": 0,
+          "type": "string",
+          "description": "Unique identifier for this connector. Use this ID when starting charging sessions."
+        },
+        "standard": {
+          "$ref": "#/$defs/ConnectorStandard",
+          "description": "Physical connector type/standard (e.g., Type2, Combo, CHADEMO). Use `Combo` for CCS connectors."
+        },
+        "power": {
+          "type": "integer",
+          "description": "Maximum power output in Watts. For AC chargers, this is typically between 3.7kW and 43kW. For DC chargers, typically between 50kW and 350kW."
+        },
+        "power_type": {
+          "type": "string",
+          "enum": [
+            "AC_1_PHASE",
+            "AC_3_PHASE",
+            "DC",
+            "AC"
+          ]
+        },
+        "price": {
+          "description": "Pricing information for this connector. Only available when retrieving a specific location.",
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string",
+              "description": "Human-readable description of the pricing structure"
+            },
+            "currency": {
+              "type": "string",
+              "description": "Three-letter currency code ([ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format)"
+            },
+            "priceIncludesVat": {
+              "type": "boolean",
+              "description": "Indicates whether the price includes VAT or not (same meaning as for the CDR object)"
+            },
+            "vatRate": {
+              "type": "string",
+              "description": "The VAT rate that is applied to the price (in case priceIncludesVat=true) or the VAT rate that should be applied to the price (in case priceIncludesVat=false)"
+            },
+            "elements": {
+              "type": "array",
+              "description": "Possible prices for that connector, depending on restrictions",
+              "items": {
+                "$ref": "#/$defs/PriceElement"
+              }
+            }
+          }
+        },
+        "max_amperage": {
+          "description": "Maximum current in Amperes that this connector can provide",
+          "type": "number"
+        },
+        "max_voltage": {
+          "description": "Maximum voltage in Volts that this connector can provide",
+          "type": "number"
+        }
+      }
+    },
+    "ConnectorStandard": {
+      "type": "string",
+      "description": "Connector standard accepted by the API. Use `Combo` for CCS connectors. `CHADEMO` is the preferred token; `Chademo` is a legacy alias.",
+      "enum": [
+        "3PinSquare",
+        "Cee2Poles",
+        "CeeBlue",
+        "CeePlus",
+        "CeeRed",
+        "Combo",
+        "Marechal",
+        "Nema5",
+        "Scame",
+        "CHADEMO",
+        "Chademo",
+        "Type1",
+        "Type2",
+        "Type3",
+        "TypeE",
+        "Schuko",
+        "UNKNOWN",
+        "T23",
+        "T13",
+        "T15",
+        "Tesla",
+        "DOMESTIC_A",
+        "DOMESTIC_B",
+        "DOMESTIC_C",
+        "DOMESTIC_D",
+        "DOMESTIC_E",
+        "DOMESTIC_F",
+        "DOMESTIC_G",
+        "DOMESTIC_H",
+        "DOMESTIC_I",
+        "DOMESTIC_J",
+        "DOMESTIC_K",
+        "DOMESTIC_L",
+        "IEC_60309_2_single_16",
+        "IEC_60309_2_three_16",
+        "IEC_60309_2_three_32",
+        "IEC_60309_2_three_64",
+        "IEC_62196_T1",
+        "IEC_62196_T1_COMBO",
+        "IEC_62196_T2",
+        "IEC_62196_T2_COMBO",
+        "IEC_62196_T3A",
+        "IEC_62196_T3C",
+        "TESLA_R",
+        "TESLA_S"
+      ]
+    },
+    "ConnectorStatus": {
+      "type": "string",
+      "enum": [
+        "AVAILABLE",
+        "CHARGING",
+        "BLOCKED",
+        "INOPERATIVE",
+        "OCCUPIED",
+        "OFFLINE",
+        "OUTOFORDER",
+        "PLANNED",
+        "REMOVED",
+        "RESERVED",
+        "UNKNOWN",
+        "UNAVAILABLE"
+      ]
+    },
+    "Coordinates": {
+      "type": "object",
+      "description": "Latitude and longitude values serialized as strings with fixed decimal precision. This schema is used in response payloads and in route-search points.",
+      "properties": {
+        "latitude": {
+          "pattern": "-?[0-9]{1,2}\\.[0-9]{6}",
+          "type": "string",
+          "description": "Latitude serialized as a string, for example `52.475911`."
+        },
+        "longitude": {
+          "pattern": "-?[0-9]{1,3}\\.[0-9]{6}",
+          "type": "string",
+          "description": "Longitude serialized as a string, for example `13.350794`."
+        }
+      }
+    },
+    "DisplayText": {
+      "type": "object",
+      "required": [
+        "language",
+        "text"
+      ],
+      "properties": {
+        "language": {
+          "type": "string",
+          "maxLength": 2,
+          "minLength": 2
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 512
+        }
+      }
+    },
+    "Evse": {
+      "required": [
+        "uid",
+        "status",
+        "connectors",
+        "capabilities",
+        "last_updated"
+      ],
+      "type": "object",
+      "description": "Electric Vehicle Supply Equipment (EVSE) represents a charging station unit that may have multiple connectors. Only one connector can be active at a time.",
+      "properties": {
+        "uid": {
+          "minLength": 0,
+          "type": "string"
+        },
+        "evse_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "physical_reference": {
+          "type": "string",
+          "description": "The 'physical reference' is used by some CPOs to represent the label printed on the charging station itself. For example, in a charging location, the physical references could be '1', '2', '3', '4', for the four different charging stations"
+        },
+        "status": {
+          "$ref": "#/$defs/ConnectorStatus"
+        },
+        "connectors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Connector"
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "description": "Values: `PLUG_AND_CHARGE_CAPABLE`, `REMOTE_START_STOP_CAPABLE`. New values in this array might be added without notice, so unknown values should be handled gracefully.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "parking_restrictions": {
+          "type": "array",
+          "description": "Parking restrictions for this EVSE.",
+          "items": {
+            "$ref": "#/$defs/ParkingRestriction"
+          }
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time the EVSE data was last updated by the operator. Any EVSE data update changes it, so it does not show when the current `status` started. Use `status_since` from Get location live data for charging timing."
+        }
+      }
+    },
+    "ExceptionalPeriod": {
+      "required": [
+        "period_begin",
+        "period_end"
+      ],
+      "properties": {
+        "period_begin": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "period_end": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "OpeningTimes": {
+      "required": [
+        "twentyfourseven"
+      ],
+      "type": "object",
+      "properties": {
+        "twentyfourseven": {
+          "type": "boolean"
+        },
+        "regular_hours": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RegularHours"
+          }
+        },
+        "exceptional_openings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExceptionalPeriod"
+          }
+        },
+        "exceptional_closings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExceptionalPeriod"
+          }
+        }
+      }
+    },
+    "ParkingRestriction": {
+      "type": "string",
+      "enum": [
+        "EV_ONLY",
+        "PLUGGED",
+        "DISABLED",
+        "CUSTOMERS",
+        "MOTORCYCLES"
+      ]
+    },
+    "ParkingType": {
+      "type": "string",
+      "enum": [
+        "ALONG_MOTORWAY",
+        "PARKING_GARAGE",
+        "PARKING_LOT",
+        "ON_DRIVEWAY",
+        "ON_STREET",
+        "UNDERGROUND_GARAGE"
+      ]
+    },
+    "PriceComponent": {
+      "type": "object",
+      "description": "Defines a single component of a charging price. A price can have multiple components (e.g., energy cost + time cost).",
+      "properties": {
+        "price": {
+          "type": "number",
+          "description": "Cost in the currency stated above. VAT is included. Decimal number. For example, if currency is EUR and price is 1.10, the cost is €1.10. More information can be found in https://developer.plugsurfing.com/docs/geosearch#explanation"
+        },
+        "type": {
+          "type": "string",
+          "description": "More information can be found in https://developer.plugsurfing.com/docs/geosearch#explanation",
+          "enum": [
+            "TIME",
+            "ENERGY",
+            "FLAT",
+            "CAPPED",
+            "PARKING_TIME",
+            "CONGESTION_TIME"
+          ]
+        },
+        "step_size": {
+          "type": "number",
+          "description": "The smallest unit of usage that will be billed. Unit: seconds for `TIME`, `PARKING_TIME`, and `CONGESTION_TIME`; watt-hours (Wh) for `ENERGY`; ignored for `FLAT` and `CAPPED`. More information can be found in https://developer.plugsurfing.com/docs/geosearch#explanation"
+        }
+      }
+    },
+    "PriceElement": {
+      "type": "object",
+      "required": [
+        "price_components"
+      ],
+      "description": "Defines a complete pricing structure that may apply under certain conditions. Multiple price elements may exist for different times or usage patterns.",
+      "properties": {
+        "price_components": {
+          "type": "array",
+          "description": "List of individual price components that make up this pricing structure",
+          "items": {
+            "$ref": "#/$defs/PriceComponent"
+          }
+        },
+        "restrictions": {
+          "type": "object",
+          "description": "Conditions under which this price element applies. Multiple restrictions can be combined.",
+          "properties": {
+            "start_time": {
+              "type": "string",
+              "description": "Time of day when this price starts applying (local time at the charging location)"
+            },
+            "end_time": {
+              "type": "string",
+              "description": "Time of day when this price stops applying (local time at the charging location)"
+            },
+            "day_of_week": {
+              "type": "string",
+              "enum": [
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY",
+                "FRIDAY",
+                "SATURDAY",
+                "SUNDAY"
+              ],
+              "description": "Days of the week when this price applies"
+            },
+            "min_duration": {
+              "type": "number",
+              "description": "Minimum charging duration in seconds before this price applies (e.g., 7200 means this price applies after 2 hours)"
+            },
+            "max_duration": {
+              "type": "number",
+              "description": "Maximum charging duration in seconds for this price to apply"
+            },
+            "min_kwh": {
+              "type": "number",
+              "description": "Minimum energy consumption in kWh before this price applies"
+            },
+            "max_kwh": {
+              "type": "number",
+              "description": "Maximum energy consumption in kWh for this price to apply"
+            },
+            "min_vehicle_soc": {
+              "type": "number",
+              "description": "Minimum vehicle state of charge percentage for which this price element is valid"
+            },
+            "max_vehicle_soc": {
+              "type": "number",
+              "description": "Maximum vehicle state of charge percentage for which this price element is valid"
+            },
+            "min_congestion_threshold": {
+              "type": "number",
+              "description": "Minimum location utilization percentage for which this price element is valid"
+            },
+            "max_congestion_threshold": {
+              "type": "number",
+              "description": "Maximum location utilization percentage for which this price element is valid"
+            }
+          }
+        }
+      }
+    },
+    "RegularHours": {
+      "description": "Only to be used if twentyfourseven = false",
+      "required": [
+        "weekday",
+        "period_begin",
+        "period_end"
+      ],
+      "properties": {
+        "weekday": {
+          "type": "integer",
+          "description": "Number of day in the week, from Monday (1) till Sunday (7)"
+        },
+        "period_begin": {
+          "type": "string",
+          "format": "([0-1][0-9]|2[0-3]):[0-5][0-9]"
+        },
+        "period_end": {
+          "type": "string",
+          "format": "([0-1][0-9]|2[0-3]):[0-5][0-9]"
+        }
+      }
+    }
+  }
+}

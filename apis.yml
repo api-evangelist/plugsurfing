@@ -1,23 +1,130 @@
 aid: plugsurfing
 name: Plugsurfing
-description: 'Plugsurfing is a company surfaced via the API Evangelist harvest backlog (source: tag-qc)
-  and added to the network as a stub for full-pipeline profiling.'
+description: Plugsurfing provides a seamless EV charging experience across Europe, offering drivers access to a large network of charging stations
+  through its mobile app and white‑label solutions for businesses. The platform supports roaming via the OCPI 2.2.1 protocol, enabling operators
+  to connect to the Plugsurfing network with real‑time charger data, tariffs, and availability. It also offers APIs for developers to embed charging
+  functionality into apps, in‑car navigation, and other digital services, fostering a more integrated electric mobility ecosystem.
 url: https://raw.githubusercontent.com/api-evangelist/plugsurfing/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:tag-qc
-x-tier: stub
-x-tier-reason: harvest
+x-tier: profiled
+x-tier-reason: enrichment pass 2026-10-14 (modular-v1; was harvest)
 specificationVersion: '0.20'
 created: '2026-10-14'
 modified: '2026-10-14'
 tags:
 - Company
-apis: []
+- EVCharging
+- API
+- Roaming
+- Europe
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Spectral
+  url: rules/plugsurfing-rules.yml
+- type: JSONLD
+  url: json-ld/plugsurfing-context.jsonld
+- type: Vocabulary
+  url: vocabulary/plugsurfing-vocabulary.yml
+- type: Conformance
+  url: conformance/plugsurfing-conformance.yml
+- type: Webhooks
+  url: asyncapi/plugsurfing-webhooks.yml
+- type: DataModel
+  url: data-model/plugsurfing-data-model.yml
+- type: ChangeLog
+  url: changelog/plugsurfing-changelog.yml
+- type: Authentication
+  url: authentication/plugsurfing-authentication.yml
+- type: ErrorCatalog
+  url: errors/plugsurfing-problem-types.yml
+- type: LLMsTxt
+  url: llms/plugsurfing-llms.txt
+- type: AgentCard
+  url: a2a/plugsurfing-a2a.yml
+- type: SecurityTxt
+  url: well-known/plugsurfing-status-security.txt
+- type: WellKnown
+  url: well-known/plugsurfing-well-known.yml
+- type: Hosts
+  url: hosts/plugsurfing-hosts.yml
+- type: Vendors
+  url: vendors/plugsurfing-vendors.yml
+- type: StatusPage
+  url: https://status.plugsurfing.com/
+- type: ChangeLog
+  url: https://developer.plugsurfing.com/changelog
+- type: GitHubOrganization
+  url: https://github.com/plugsurfing
+- type: DomainSecurity
+  url: security/plugsurfing-domain-security.yml
 - type: Website
   url: https://www.plugsurfing.com
+- type: DeveloperPortal
+  url: https://developer.plugsurfing.com
+- type: Documentation
+  url: https://developer.plugsurfing.com/docs/getting-started
+- type: APIReference
+  url: https://plugsurfing.com/api
+- type: GettingStarted
+  url: https://developer.plugsurfing.com/docs/getting-started
+- type: Support
+  url: https://support.plugsurfing.com/hc/en-us
+- type: Blog
+  url: https://plugsurfing.com/blog/
+- type: TermsOfService
+  url: https://plugsurfing.com/legal/terms-of-use/
+- type: PrivacyPolicy
+  url: https://plugsurfing.com/legal/privacy-policy/
+apis:
+- name: Drive API
+  description: The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network.
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  aid: plugsurfing:drive-api
+- aid: plugsurfing:drive-api-reference-api
+  name: Drive API Reference API
+  description: 'The Drive API provides comprehensive access to Plugsurfing''s charging infrastructure network. It enables you to manage users,
+    charging
+
+    keys, search for charging locations, handle payments, and control charging sessions.'
+  humanURL: https://developer.plugsurfing.com/llms.txt
+  properties:
+  - type: OpenAPI
+    url: openapi/_original/plugsurfing-reference-openapi.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-location-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-session-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-orders-product-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-charging-key-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-prepaid-balance-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-post-request-schema.json
+x-coverage:
+  state: none
+  reason: no-developer-program
+  method: derived
+  generated: '2026-10-14'
+  generator: derive-coverage.py (pre-flight evidence)
+  detail: the company publishes no developer documentation host and no machine-readable contract on its own domain
+  evidence:
+  - url: https://developer.plugsurfing.com/mcp
+    status: null
+  - url: https://partnersupport.plugsurfing.com/mcp
+    status: 401
+  - url: https://www.plugsurfing.com
+    status: 200
+x-enrichment:
+  date: '2026-10-14'
+  status: enriched
+  artifacts_added: 26
+  pass: modular-v1
+  engine: identity=local,contract=local,surfaces=local,docs=local,regulatory=local

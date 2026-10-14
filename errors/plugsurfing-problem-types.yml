@@ -1,0 +1,55 @@
+generated: '2026-10-14'
+method: derived
+generator: derive-problem-types.py
+source:
+- openapi/_original/plugsurfing-reference-openapi.json
+format: custom
+envelope:
+  media_type: application/json
+  schema: ErrorResponse
+coverage:
+  operations: 59
+  statuses_declared: 6
+problems:
+- status: 400
+  title: Bad Request
+  description: The provided query parameters, route parameters or body is invalid.
+  operations: 41
+  media_types:
+  - application/json
+  schema: InvalidRequestErrorResponse
+- status: 403
+  title: Forbidden
+  description: Forbidden. You have no access to this charging key
+  operations: 9
+  media_types:
+  - application/json
+  schema: ErrorResponse
+- status: 404
+  title: Not Found
+  description: User not found
+  operations: 39
+  media_types:
+  - application/json
+  schema: ErrorResponse
+- status: 409
+  title: Conflict
+  description: Key already in use
+  operations: 13
+  media_types:
+  - application/json
+  schema: ErrorResponse
+- status: 429
+  title: Too Many Requests
+  description: Too many requests — a given user can't order more than 1 card every 5 minutes.
+  operations: 1
+  media_types:
+  - application/json
+  schema: ErrorResponse
+- status: 500
+  title: Internal Server Error
+  description: Internal Server Error
+  operations: 59
+  media_types:
+  - application/json
+  schema: ErrorResponse

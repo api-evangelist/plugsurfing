@@ -1,0 +1,423 @@
+generated: '2026-10-14'
+method: derived
+generator: derive-vocabulary.py
+source: openapi/_original/plugsurfing-reference-openapi.json
+vocabulary:
+  name: Plugsurfing Domain Vocabulary
+  description: 'Terms declared by Plugsurfing''s own API contract: its resource groups, objects and enumerations, with the contract''s definitions.
+    Derived, not authored.'
+  version: '2026-10-14'
+  terms:
+  - term: Geosearch
+    definition: Search and retrieve detailed information about charging locations and stations
+    tags:
+    - Resource Group
+    source: openapi/_original/plugsurfing-reference-openapi.json
+  - term: Users
+    definition: Manage user accounts including creation, retrieval, updates, and deletion. Handles user-specific data and preferences.
+    tags:
+    - Resource Group
+    source: openapi/_original/plugsurfing-reference-openapi.json
+  - term: Charging Keys
+    definition: Manage physical and virtual charging keys including creation, activation, updates, and status management. Essential for user access
+      to charging stations.
+    tags:
+    - Resource Group
+    source: openapi/_original/plugsurfing-reference-openapi.json
+  - term: Sessions
+    definition: Access and manage charging session data including history, status, and detailed session information
+    tags:
+    - Resource Group
+    source: openapi/_original/plugsurfing-reference-openapi.json
+  - term: Remote Charging
+    definition: Control charging sessions remotely including starting and stopping sessions, and monitoring session status
+    tags:
+    - Resource Group
+    source: openapi/_original/plugsurfing-reference-openapi.json
+  - term: Payment Options
+    definition: Manage payment methods and handle transaction processing for charging services
+    tags:
+    - Resource Group
+    source: openapi/_original/plugsurfing-reference-openapi.json
+  - term: User Groups
+    definition: Manage user group memberships
+    tags:
+    - Resource Group
+    source: openapi/_original/plugsurfing-reference-openapi.json
+  - term: Vouchers
+    definition: Redeem vouchers
+    tags:
+    - Resource Group
+    source: openapi/_original/plugsurfing-reference-openapi.json
+  - term: Charging Key Orders
+    definition: Handle the ordering and fulfillment process for physical charging keys
+    tags:
+    - Resource Group
+    source: openapi/_original/plugsurfing-reference-openapi.json
+  - term: EMP Charging Keys
+    definition: E-Mobility Provider specific endpoints for managing charging keys
+    tags:
+    - Resource Group
+    source: openapi/_original/plugsurfing-reference-openapi.json
+  - term: EMP Geosearch
+    definition: E-Mobility Provider specific endpoints for location search and information
+    tags:
+    - Resource Group
+    source: openapi/_original/plugsurfing-reference-openapi.json
+  - term: EMP Orders
+    definition: E-Mobility Provider specific endpoints for managing orders
+    tags:
+    - Resource Group
+    source: openapi/_original/plugsurfing-reference-openapi.json
+  - term: EMP Sessions
+    definition: E-Mobility Provider specific endpoints for managing charging sessions
+    tags:
+    - Resource Group
+    source: openapi/_original/plugsurfing-reference-openapi.json
+  - term: EMP Fleets
+    definition: E-Mobility Provider specific endpoints for managing fleets
+    tags:
+    - Resource Group
+    source: openapi/_original/plugsurfing-reference-openapi.json
+  - term: DriveApiChargingKeyWhitelistType
+    definition: 'Defines when authorization of a charging key by the CPO is allowed. ALLOWED_OFFLINE: CPO should use realtime authorization. But
+      when the CPO cannot get a response from the eMSP, the CPO shall allow the charging key to be used. NEVER: Only realtime authorization is
+      allowed. CPO shall always send a realtime authorization for any use of this charging key to the MSP.'
+    tags:
+    - Enumeration
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/DriveApiChargingKeyWhitelistType
+  - term: ChargingKey
+    definition: Represents a charging key assigned to a user account.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKey
+  - term: ChargingKeyPostRequest
+    definition: Request payload to create a new charging key for a user.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKeyPostRequest
+  - term: ChargingKeyActivateRequest
+    definition: Optional request payload to activate a charging key.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKeyActivateRequest
+  - term: ChargingKeyPatchRequest
+    definition: Request payload to update mutable charging key attributes.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKeyPatchRequest
+  - term: ChargingKeyOrderRequest
+    definition: This endpoint allows you to order a charging key for a specific user. To prevent duplicate orders, ordering charging keys for
+      a single user is throttled to 1 order every 5 minutes. This is a safety measure to avoid accidental double-clicks on the order button, preventing
+      the user from being charged twice. If the user exceeds this limit, a `429 - Too Many Requests` HTTP response will be returned.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKeyOrderRequest
+  - term: ChargingKeyOrderAddressRequest
+    definition: Shipping address used when placing a charging key order.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKeyOrderAddressRequest
+  - term: ChargingKeyOrderResponse
+    definition: Result returned after creating a charging key order.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKeyOrderResponse
+  - term: ChargingKeyOrdersListResponse
+    definition: Response containing charging key orders for a user.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKeyOrdersListResponse
+  - term: ChargingKeyConfigurationResponse
+    definition: Available configuration values for charging key ordering.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKeyConfigurationResponse
+  - term: ChargingKeyOrdersListItem
+    definition: A single charging key order entry in a list response.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKeyOrdersListItem
+  - term: ChargingKeyAddress
+    definition: Postal address associated with a charging key order.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKeyAddress
+  - term: OrderState
+    definition: 'Enumeration declared by the contract with values: ORDER_FILLED, ORDER_CANCELLED, ORDER_PROCESSING, ORDER_WAITING_3DS, ORDER_PAYMENT_FAILED,
+      ORDER_REFUND_FAILED, ORDER_REFUNDED, ORDER_PLACED, ORDER_PAID.'
+    tags:
+    - Enumeration
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/OrderState
+  - term: ChargingKeyReservationsRequest
+    definition: Request payload to reserve charging key identifiers before activation.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKeyReservationsRequest
+  - term: ChargingKeyOrderReceiptResponse
+    definition: Response containing the receipt URL for a charging key order.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKeyOrderReceiptResponse
+  - term: ChargingKeyPlugAndChargePostRequest
+    definition: Request payload to register a plug-and-charge contract identifier.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKeyPlugAndChargePostRequest
+  - term: ChargingKeyPlugAndChargePostResponse
+    definition: Result payload after registering a Plug&Charge contract.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKeyPlugAndChargePostResponse
+  - term: EmpChargingKeyPostRequest
+    definition: Request payload to create an EMP charging key.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/EmpChargingKeyPostRequest
+  - term: EmpChargingKeyRenameRequest
+    definition: Request payload to rename an EMP charging key.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/EmpChargingKeyRenameRequest
+  - term: EmpChargingKeyResponse
+    definition: EMP charging key details returned by key management endpoints.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/EmpChargingKeyResponse
+  - term: EmpCreateChargingKeyOrderRequest
+    definition: Request body for creating a fleet charging key order.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/EmpCreateChargingKeyOrderRequest
+  - term: EmpChargingKeyOrdersProductAddress
+    definition: Delivery address for an EMP charging key order product.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/EmpChargingKeyOrdersProductAddress
+  - term: EmpChargingKeyOrdersProduct
+    definition: EMP charging key order product details.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/EmpChargingKeyOrdersProduct
+  - term: EmpChargingKeyOrdersResponse
+    definition: Paginated list of EMP charging key order products.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/EmpChargingKeyOrdersResponse
+  - term: ChargingKeyOrderStatus
+    definition: ORDER_PAID -> orders ready to be fulfilled
+    tags:
+    - Enumeration
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargingKeyOrderStatus
+  - term: EmpSessionStartRequest
+    definition: EMP session start request identifying connector and charging key.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/EmpSessionStartRequest
+  - term: EmpFleetCreationRequest
+    definition: 'Object declared by the contract with fields: fleetId, fleetName.'
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/EmpFleetCreationRequest
+  - term: EmpFleetCreationResponse
+    definition: 'Object declared by the contract with fields: fleetId, fleetName.'
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/EmpFleetCreationResponse
+  - term: EmpFleetRenameRequest
+    definition: 'Object declared by the contract with fields: newName.'
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/EmpFleetRenameRequest
+  - term: BaseResponseListLocation
+    definition: Response payload containing matching locations and aggregate metadata for a geosearch query.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/BaseResponseListLocation
+  - term: BatchLocationsResponse
+    definition: Paginated response containing a batch of charging locations.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/BatchLocationsResponse
+  - term: Location
+    definition: 'Object declared by the contract with fields: id, name, coordinates, evses, parking_type, operator, operator_display_name, opening_times,
+      directions, country, state, city. (5 more)'
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/Location
+  - term: Coordinates
+    definition: Latitude and longitude values serialized as strings with fixed decimal precision. This schema is used in response payloads and
+      in route-search points.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/Coordinates
+  - term: Evse
+    definition: Electric Vehicle Supply Equipment (EVSE) represents a charging station unit that may have multiple connectors. Only one connector
+      can be active at a time.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/Evse
+  - term: LocationLiveData
+    definition: Live charging data of the EVSEs of a location.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/LocationLiveData
+  - term: ChargePointLiveData
+    definition: Live status of an EVSE, tracked by Plugsurfing from the charger status updates.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ChargePointLiveData
+  - term: Connector
+    definition: 'Object declared by the contract with fields: id, standard, power, power_type, price, max_amperage, max_voltage.'
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/Connector
+  - term: BusinessDetails
+    definition: 'Object declared by the contract with fields: id, name, hotline, external_id.'
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/BusinessDetails
+  - term: OpeningTimes
+    definition: 'Object declared by the contract with fields: twentyfourseven, regular_hours, exceptional_openings, exceptional_closings.'
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/OpeningTimes
+  - term: RegularHours
+    definition: Only to be used if twentyfourseven = false
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/RegularHours
+  - term: ExceptionalPeriod
+    definition: 'Object declared by the contract with fields: period_begin, period_end.'
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ExceptionalPeriod
+  - term: DisplayText
+    definition: 'Object declared by the contract with fields: language, text.'
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/DisplayText
+  - term: ConnectorStandard
+    definition: Connector standard accepted by the API. Use `Combo` for CCS connectors. `CHADEMO` is the preferred token; `Chademo` is a legacy
+      alias.
+    tags:
+    - Enumeration
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ConnectorStandard
+  - term: ConnectorStatus
+    definition: 'Enumeration declared by the contract with values: AVAILABLE, CHARGING, BLOCKED, INOPERATIVE, OCCUPIED, OFFLINE, OUTOFORDER, PLANNED,
+      REMOVED, RESERVED, UNKNOWN, UNAVAILABLE.'
+    tags:
+    - Enumeration
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ConnectorStatus
+  - term: ParkingType
+    definition: 'Enumeration declared by the contract with values: ALONG_MOTORWAY, PARKING_GARAGE, PARKING_LOT, ON_DRIVEWAY, ON_STREET, UNDERGROUND_GARAGE.'
+    tags:
+    - Enumeration
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ParkingType
+  - term: ParkingRestriction
+    definition: 'Enumeration declared by the contract with values: EV_ONLY, PLUGGED, DISABLED, CUSTOMERS, MOTORCYCLES.'
+    tags:
+    - Enumeration
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/ParkingRestriction
+  - term: Capabilities
+    definition: 'Enumeration declared by the contract with values: REMOTE_START_STOP_CAPABLE, PLUG_AND_CHARGE_CAPABLE.'
+    tags:
+    - Enumeration
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/Capabilities
+  - term: Aggregate
+    definition: 'Object declared by the contract with fields: coordinates, count.'
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/Aggregate
+  - term: RadiusRequest
+    definition: Geosearch request centered on a point with radius-based criteria. The body is optional filter data only; use `{}` for a search
+      without filters.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/RadiusRequest
+  - term: RectangleRequest
+    definition: Geosearch request constrained to a rectangular area.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/RectangleRequest
+  - term: AlongRouteRequest
+    definition: The request takes up to 300 points for the route
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/AlongRouteRequest
+  - term: GeoFilters
+    definition: Filtering criteria applied to geosearch requests.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/GeoFilters
+  - term: PriceComponent
+    definition: Defines a single component of a charging price. A price can have multiple components (e.g., energy cost + time cost).
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/PriceComponent
+  - term: PriceElement
+    definition: Defines a complete pricing structure that may apply under certain conditions. Multiple price elements may exist for different
+      times or usage patterns.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/PriceElement
+  - term: OperatorsListResponse
+    definition: 'Object declared by the contract with fields: operators, cursor.'
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/OperatorsListResponse
+  - term: Operator
+    definition: 'Object declared by the contract with fields: id, name, externalId.'
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/Operator
+  - term: PaymentOption
+    definition: Stored payment option metadata for a user.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/PaymentOption
+  - term: CreditCardPaymentOption
+    definition: Stored credit card payment option details.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/CreditCardPaymentOption
+  - term: PrepaidBalance
+    definition: Current prepaid balance information for a user.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/PrepaidBalance
+  - term: SetupIntent
+    definition: Stripe SetupIntent data used to confirm and attach a payment method.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/SetupIntent
+  - term: CreatePaymentOptionRequest
+    definition: Request payload to create a new payment option for a user.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/CreatePaymentOptionRequest
+  - term: CreateStripeCreditCardRequest
+    definition: Stripe-specific payload to register a credit card payment method.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/CreateStripeCreditCardRequest
+  - term: SessionsHistoryRequest
+    definition: Filtering and pagination options for retrieving session history.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/SessionsHistoryRequest
+  - term: SessionsHistoryResponse
+    definition: Paginated list of sessions returned by history queries.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/SessionsHistoryResponse
+  - term: SessionEnergy
+    definition: Energy measurement data for a charging session.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/SessionEnergy
+  - term: SessionCharger
+    definition: Location and connector information for the charger used in a session.
+    tags:
+    - Object
+    source: openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/SessionCharger

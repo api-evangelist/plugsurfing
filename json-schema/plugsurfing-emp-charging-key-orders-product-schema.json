@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/plugsurfing/main/json-schema/plugsurfing-emp-charging-key-orders-product-schema.json",
+  "title": "EmpChargingKeyOrdersProduct",
+  "description": "EMP charging key order product details.",
+  "x-generated": "2026-10-14",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/EmpChargingKeyOrdersProduct",
+  "required": [
+    "id",
+    "address",
+    "quantity",
+    "language",
+    "product",
+    "created",
+    "organizationId",
+    "status",
+    "updated"
+  ],
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier of the order product."
+    },
+    "address": {
+      "$ref": "#/$defs/EmpChargingKeyOrdersProductAddress",
+      "description": "Delivery address for this order product."
+    },
+    "quantity": {
+      "type": "number",
+      "description": "Number of product units ordered."
+    },
+    "language": {
+      "type": "string",
+      "description": "Language used for order communication."
+    },
+    "product": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "description": "Ordered product code or type."
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when this product order was created."
+    },
+    "organizationId": {
+      "type": "string",
+      "description": "Identifier of the organization that placed the order."
+    },
+    "status": {
+      "$ref": "#/$defs/ChargingKeyOrderStatus",
+      "description": "Current processing status of the order product."
+    },
+    "updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when this product order was last updated."
+    },
+    "printing": {
+      "type": "object",
+      "description": "Printing details associated with the order product. Present only for orders that include physical card customization.",
+      "required": [
+        "variables"
+      ],
+      "properties": {
+        "variables": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Print-specific values associated with the order, for example values used on a customized physical card."
+        },
+        "color": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "BLACK",
+            "WHITE",
+            null
+          ],
+          "description": "Card template color agreed for the product/order. It is not selected by the end customer while placing the order."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "ChargingKeyOrderStatus": {
+      "type": "string",
+      "description": "ORDER_PAID -> orders ready to be fulfilled",
+      "enum": [
+        "WAITING_FOR_ORDER",
+        "ORDER_PLACED",
+        "ORDER_PROCESSING",
+        "ORDER_ASSIGNED",
+        "ORDER_PAID",
+        "ORDER_CANCELLED",
+        "ORDER_CANCELLING",
+        "ORDER_PAYMENT_FAILED",
+        "ORDER_REFUND_FAILED",
+        "ORDER_WAITING_REFUND",
+        "ORDER_REFUNDED",
+        "PAYMENT_ONGOING",
+        "ORDER_FILLED",
+        "ORDER_PAYED",
+        "PREPARE_RECEIPT",
+        "ORDER_PAYED_WITHOUT_RECEIPT"
+      ]
+    },
+    "EmpChargingKeyOrdersProductAddress": {
+      "type": "object",
+      "properties": {
+        "country": {
+          "type": "string",
+          "description": "Country code in ISO 3166-1 alpha-2 format."
+        },
+        "additionalInformation": {
+          "type": "string",
+          "description": "Additional delivery instructions."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "Recipient first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Recipient last name."
+        },
+        "city": {
+          "type": "string",
+          "description": "City name."
+        },
+        "postalCode": {
+          "type": "string",
+          "description": "Postal or ZIP code."
+        },
+        "companyName": {
+          "type": "string",
+          "description": "Company name for business delivery addresses."
+        },
+        "addressLine1": {
+          "type": "string",
+          "description": "Primary street address line."
+        },
+        "addressLine2": {
+          "type": "string",
+          "description": "Secondary address line such as apartment or suite."
+        }
+      },
+      "description": "Delivery address for an EMP charging key order product."
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/plugsurfing/main/json-schema/plugsurfing-prepaid-balance-schema.json",
+  "title": "PrepaidBalance",
+  "description": "Current prepaid balance information for a user.",
+  "x-generated": "2026-10-14",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/PrepaidBalance",
+  "type": "object",
+  "required": [
+    "balanceTotal",
+    "balances"
+  ],
+  "properties": {
+    "balanceTotal": {
+      "type": "object",
+      "required": [
+        "amountMinorUnits",
+        "currency"
+      ],
+      "description": "The total prepaid balance across all sources and validity periods",
+      "properties": {
+        "amountMinorUnits": {
+          "type": "integer",
+          "description": "Total balance in minor currency units (e.g., cents for EUR/USD). For example, 1000 represents 10.00 in the specified currency."
+        },
+        "currency": {
+          "type": "string",
+          "description": "Three-letter currency code (ISO 4217)"
+        }
+      }
+    },
+    "balances": {
+      "type": "array",
+      "description": "Detailed breakdown of prepaid balance by source and validity period",
+      "items": {
+        "type": "object",
+        "properties": {
+          "expiryDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this balance portion will expire. After this date, the amount will no longer be available for use."
+          },
+          "amountMinorUnits": {
+            "type": "integer",
+            "description": "Current balance amount in minor currency units"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Three-letter currency code (ISO 4217)"
+          },
+          "source": {
+            "type": "string",
+            "description": "Origin of this balance portion (e.g., 'Credit' for topped-up amounts, 'Voucher' for promotional credits)"
+          },
+          "initialAmountMinorUnits": {
+            "type": "integer",
+            "description": "Original amount when this balance portion was added, in minor currency units"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/plugsurfing/main/json-schema/plugsurfing-session-schema.json",
+  "title": "Session",
+  "description": "Detailed charging session information.",
+  "x-generated": "2026-10-14",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/Session",
+  "required": [
+    "sessionStatus",
+    "connectorId",
+    "sessionId",
+    "transactions"
+  ],
+  "type": "object",
+  "properties": {
+    "balanceStatus": {
+      "$ref": "#/$defs/SessionBalanceStatus",
+      "description": "Balance state after applying session costs."
+    },
+    "sessionStatus": {
+      "$ref": "#/$defs/SessionStatus",
+      "description": "Current lifecycle status of the session."
+    },
+    "charger": {
+      "$ref": "#/$defs/SessionCharger",
+      "description": "Charger location and connector metadata."
+    },
+    "balanceAmountMinor": {
+      "type": "number",
+      "description": "Type \"Long\". This field is not relevant for External Clearing (only used when using Plugsurfing's Payment Service Provider). Represents the remaining amount to be paid, expressed as a negative number. A value of 0 indicates the balance is fully paid. -2160 means there is an outstanding amount of 21.60 in the currency of the session."
+    },
+    "chargingKeyType": {
+      "type": "string",
+      "description": "Only available after a session has successfully started. Possible values are \"tag\", \"card\", \"virtual\" or \"plug_and_charge\"."
+    },
+    "connectorId": {
+      "type": "string",
+      "description": "Only available after a session has successfully started."
+    },
+    "duration": {
+      "type": "string",
+      "format": "duration",
+      "description": "The value is in ISO 8601 duration format"
+    },
+    "energy": {
+      "$ref": "#/$defs/SessionEnergy",
+      "description": "Energy consumed during the session."
+    },
+    "paymentMethod": {
+      "type": "string",
+      "enum": [
+        "CREDIT_CARD",
+        "EXTERNAL",
+        "PREPAID",
+        "WRITE_OFF"
+      ],
+      "deprecated": true,
+      "description": "Returns the `paymentMethod` of the transaction with the earliest timestamp. This field is `DEPRECATED` and will be removed in future versions. Use `session.transactions[].paymentMethod` instead. Migration note: `WRITE_OFF` was renamed to `NONE`, where `session.transactions[].paymentOutcome=WRITE_OFF` is the replacement"
+    },
+    "price": {
+      "$ref": "#/$defs/SessionAmount",
+      "description": "Total session price."
+    },
+    "receiptAvailable": {
+      "type": "boolean",
+      "description": "Indicates whether a receipt can be downloaded."
+    },
+    "sessionId": {
+      "type": "string",
+      "description": "Unique identifier of the charging session."
+    },
+    "site": {
+      "type": "string",
+      "description": "Human-readable charging site name."
+    },
+    "startTime": {
+      "$ref": "#/$defs/Time",
+      "description": "UTC timestamp when the session started."
+    },
+    "transactions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Transaction"
+      },
+      "description": "Transactions linked to this charging session."
+    }
+  },
+  "$defs": {
+    "SessionAmount": {
+      "required": [
+        "currencyCode",
+        "minorExclVat",
+        "minorInclVat",
+        "vat"
+      ],
+      "type": "object",
+      "properties": {
+        "currencyCode": {
+          "type": "string",
+          "description": "3-letter currency code"
+        },
+        "minorExclVat": {
+          "type": "integer",
+          "description": "Minor units amount. Example: 2785 = 27.85€."
+        },
+        "minorInclVat": {
+          "type": "integer",
+          "description": "Minor units amount"
+        },
+        "vat": {
+          "type": "string",
+          "description": "VAT percentage"
+        }
+      },
+      "description": "Monetary amount with currency and VAT breakdown."
+    },
+    "SessionBalanceStatus": {
+      "type": "string",
+      "enum": [
+        "PROCESSING",
+        "PAID",
+        "DEBT",
+        "REFUND"
+      ],
+      "description": "Note: this field is not relevant when using External Clearing."
+    },
+    "SessionCharger": {
+      "type": "object",
+      "properties": {
+        "chargingStationName": {
+          "type": "string",
+          "description": "Display name of the charging station."
+        },
+        "city": {
+          "type": "string",
+          "description": "City where the charger is located."
+        },
+        "connectorLabel": {
+          "type": "string",
+          "description": "Connector label reported by the charge point operator."
+        },
+        "evseId": {
+          "type": "string",
+          "description": "EVSE identifier for the charging point."
+        },
+        "streetName": {
+          "type": "string",
+          "description": "Street address of the charger."
+        }
+      },
+      "description": "Location and connector information for the charger used in a session."
+    },
+    "SessionEnergy": {
+      "required": [
+        "unit",
+        "value"
+      ],
+      "type": "object",
+      "properties": {
+        "unit": {
+          "type": "string",
+          "description": "Energy unit, typically kWh."
+        },
+        "value": {
+          "type": "number",
+          "description": "Measured energy value for the session."
+        }
+      },
+      "description": "Energy measurement data for a charging session."
+    },
+    "SessionStatus": {
+      "type": "string",
+      "description": "IMPORTANT - when handling this enum other unknown values should be handled.",
+      "enum": [
+        "CREATED",
+        "WAITING_TO_START",
+        "STARTED",
+        "WAITING_TO_STOP",
+        "STOPPED",
+        "COMPLETE",
+        "FAILED",
+        "UNKNOWN",
+        "STOP_FAILED"
+      ]
+    },
+    "Time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp in ISO 8601 UTC format with up to nanosecond precision."
+    },
+    "Transaction": {
+      "type": "object",
+      "description": "Represents a transaction with payment details and time.",
+      "properties": {
+        "paymentMethod": {
+          "type": "string",
+          "enum": [
+            "CREDIT_CARD",
+            "EXTERNAL",
+            "PREPAID",
+            "NONE"
+          ],
+          "description": "The payment method used for the transaction. Can be `NONE` for outcome `WRITE_OFF`"
+        },
+        "paymentOutcome": {
+          "type": "string",
+          "enum": [
+            "CHARGE",
+            "WRITE_OFF",
+            "REFUND"
+          ],
+          "description": "The outcome of the payment process."
+        },
+        "amount": {
+          "$ref": "#/$defs/SessionAmount"
+        },
+        "time": {
+          "$ref": "#/$defs/Time"
+        }
+      },
+      "required": [
+        "paymentMethod",
+        "paymentOutcome",
+        "amount",
+        "time"
+      ]
+    }
+  }
+}

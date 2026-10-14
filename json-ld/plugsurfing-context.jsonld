@@ -1,0 +1,867 @@
+{
+  "@context": {
+    "@vocab": "https://plugsurfing.com/schema#",
+    "schema": "https://schema.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "plugsurfing": "https://plugsurfing.com/schema#",
+    "DriveApiChargingKeyWhitelistType": "plugsurfing:DriveApiChargingKeyWhitelistType",
+    "ChargingKey": "plugsurfing:ChargingKey",
+    "keyId": {
+      "@id": "plugsurfing:keyId",
+      "@type": "xsd:string"
+    },
+    "referenceId": {
+      "@id": "plugsurfing:referenceId",
+      "@type": "xsd:string"
+    },
+    "contractId": {
+      "@id": "plugsurfing:contractId",
+      "@type": "xsd:string"
+    },
+    "name": {
+      "@id": "plugsurfing:name",
+      "@type": "xsd:string"
+    },
+    "validFrom": {
+      "@id": "plugsurfing:validFrom",
+      "@type": "xsd:dateTime"
+    },
+    "validTo": {
+      "@id": "plugsurfing:validTo",
+      "@type": "xsd:dateTime"
+    },
+    "type": {
+      "@id": "plugsurfing:type",
+      "@type": "xsd:string"
+    },
+    "enabled": {
+      "@id": "plugsurfing:enabled",
+      "@type": "xsd:boolean"
+    },
+    "created": {
+      "@id": "plugsurfing:created",
+      "@type": "xsd:dateTime"
+    },
+    "updated": {
+      "@id": "plugsurfing:updated",
+      "@type": "xsd:dateTime"
+    },
+    "whitelist": {
+      "@id": "plugsurfing:whitelist",
+      "@type": "@id"
+    },
+    "ChargingKeyPostRequest": "plugsurfing:ChargingKeyPostRequest",
+    "keyIdentifier": {
+      "@id": "plugsurfing:keyIdentifier",
+      "@type": "xsd:string"
+    },
+    "visualNumber": {
+      "@id": "plugsurfing:visualNumber",
+      "@type": "xsd:string"
+    },
+    "ChargingKeyActivateRequest": "plugsurfing:ChargingKeyActivateRequest",
+    "ChargingKeyPatchRequest": "plugsurfing:ChargingKeyPatchRequest",
+    "ChargingKeyOrderRequest": "plugsurfing:ChargingKeyOrderRequest",
+    "address": {
+      "@id": "plugsurfing:address",
+      "@type": "@id"
+    },
+    "taxationCountry": {
+      "@id": "plugsurfing:taxationCountry",
+      "@type": "xsd:string"
+    },
+    "paymentOptionId": {
+      "@id": "plugsurfing:paymentOptionId",
+      "@type": "xsd:string"
+    },
+    "ChargingKeyOrderAddressRequest": "plugsurfing:ChargingKeyOrderAddressRequest",
+    "companyName": {
+      "@id": "plugsurfing:companyName",
+      "@type": "xsd:string"
+    },
+    "firstName": {
+      "@id": "plugsurfing:firstName",
+      "@type": "xsd:string"
+    },
+    "lastName": {
+      "@id": "plugsurfing:lastName",
+      "@type": "xsd:string"
+    },
+    "addressLine1": {
+      "@id": "plugsurfing:addressLine1",
+      "@type": "xsd:string"
+    },
+    "addressLine2": {
+      "@id": "plugsurfing:addressLine2",
+      "@type": "xsd:string"
+    },
+    "postalCode": {
+      "@id": "plugsurfing:postalCode",
+      "@type": "xsd:string"
+    },
+    "city": {
+      "@id": "plugsurfing:city",
+      "@type": "xsd:string"
+    },
+    "country": {
+      "@id": "plugsurfing:country",
+      "@type": "xsd:string"
+    },
+    "ChargingKeyOrderResponse": "plugsurfing:ChargingKeyOrderResponse",
+    "id": {
+      "@id": "plugsurfing:id",
+      "@type": "xsd:string"
+    },
+    "state": {
+      "@id": "plugsurfing:state",
+      "@type": "@id"
+    },
+    "clientSecret": {
+      "@id": "plugsurfing:clientSecret",
+      "@type": "xsd:string"
+    },
+    "ChargingKeyConfigurationResponse": "plugsurfing:ChargingKeyConfigurationResponse",
+    "countries": {
+      "@id": "plugsurfing:countries",
+      "@container": "@list"
+    },
+    "ChargingKeyOrdersListItem": "plugsurfing:ChargingKeyOrdersListItem",
+    "quantity": {
+      "@id": "plugsurfing:quantity",
+      "@type": "xsd:decimal"
+    },
+    "currency": {
+      "@id": "plugsurfing:currency",
+      "@type": "xsd:string"
+    },
+    "priceMinorInclVat": {
+      "@id": "plugsurfing:priceMinorInclVat",
+      "@type": "xsd:integer"
+    },
+    "hasReceipt": {
+      "@id": "plugsurfing:hasReceipt",
+      "@type": "xsd:boolean"
+    },
+    "ChargingKeyAddress": "plugsurfing:ChargingKeyAddress",
+    "OrderState": "plugsurfing:OrderState",
+    "ChargingKeyReservationsRequest": "plugsurfing:ChargingKeyReservationsRequest",
+    "uid": {
+      "@id": "plugsurfing:uid",
+      "@type": "xsd:string"
+    },
+    "ChargingKeyOrderReceiptResponse": "plugsurfing:ChargingKeyOrderReceiptResponse",
+    "url": {
+      "@id": "plugsurfing:url",
+      "@type": "xsd:string"
+    },
+    "ChargingKeyPlugAndChargePostRequest": "plugsurfing:ChargingKeyPlugAndChargePostRequest",
+    "pcid": {
+      "@id": "plugsurfing:pcid",
+      "@type": "xsd:string"
+    },
+    "ChargingKeyPlugAndChargePostResponse": "plugsurfing:ChargingKeyPlugAndChargePostResponse",
+    "EmpChargingKeyPostRequest": "plugsurfing:EmpChargingKeyPostRequest",
+    "fleetId": {
+      "@id": "plugsurfing:fleetId",
+      "@type": "xsd:string"
+    },
+    "fleetName": {
+      "@id": "plugsurfing:fleetName",
+      "@type": "xsd:string"
+    },
+    "EmpChargingKeyRenameRequest": "plugsurfing:EmpChargingKeyRenameRequest",
+    "newName": {
+      "@id": "plugsurfing:newName",
+      "@type": "xsd:string"
+    },
+    "EmpChargingKeyResponse": "plugsurfing:EmpChargingKeyResponse",
+    "EmpCreateChargingKeyOrderRequest": "plugsurfing:EmpCreateChargingKeyOrderRequest",
+    "productId": {
+      "@id": "plugsurfing:productId",
+      "@type": "xsd:string"
+    },
+    "printing": {
+      "@id": "plugsurfing:printing"
+    },
+    "EmpChargingKeyOrdersProductAddress": "plugsurfing:EmpChargingKeyOrdersProductAddress",
+    "additionalInformation": {
+      "@id": "plugsurfing:additionalInformation",
+      "@type": "xsd:string"
+    },
+    "EmpChargingKeyOrdersProduct": "plugsurfing:EmpChargingKeyOrdersProduct",
+    "language": {
+      "@id": "plugsurfing:language",
+      "@type": "xsd:string"
+    },
+    "product": {
+      "@id": "plugsurfing:product"
+    },
+    "organizationId": {
+      "@id": "plugsurfing:organizationId",
+      "@type": "xsd:string"
+    },
+    "status": {
+      "@id": "plugsurfing:status",
+      "@type": "@id"
+    },
+    "EmpChargingKeyOrdersResponse": "plugsurfing:EmpChargingKeyOrdersResponse",
+    "products": {
+      "@id": "plugsurfing:products",
+      "@container": "@list"
+    },
+    "cursor": {
+      "@id": "plugsurfing:cursor",
+      "@type": "xsd:string"
+    },
+    "ChargingKeyOrderStatus": "plugsurfing:ChargingKeyOrderStatus",
+    "EmpSessionStartRequest": "plugsurfing:EmpSessionStartRequest",
+    "connectorId": {
+      "@id": "plugsurfing:connectorId",
+      "@type": "xsd:string"
+    },
+    "EmpFleetCreationRequest": "plugsurfing:EmpFleetCreationRequest",
+    "EmpFleetCreationResponse": "plugsurfing:EmpFleetCreationResponse",
+    "EmpFleetRenameRequest": "plugsurfing:EmpFleetRenameRequest",
+    "BaseResponseListLocation": "plugsurfing:BaseResponseListLocation",
+    "locations": {
+      "@id": "plugsurfing:locations",
+      "@container": "@list"
+    },
+    "aggregates": {
+      "@id": "plugsurfing:aggregates",
+      "@container": "@list"
+    },
+    "BatchLocationsResponse": "plugsurfing:BatchLocationsResponse",
+    "Location": "plugsurfing:Location",
+    "coordinates": {
+      "@id": "plugsurfing:coordinates",
+      "@type": "@id"
+    },
+    "evses": {
+      "@id": "plugsurfing:evses",
+      "@container": "@list"
+    },
+    "parking_type": {
+      "@id": "plugsurfing:parking_type"
+    },
+    "operator": {
+      "@id": "plugsurfing:operator",
+      "@type": "@id"
+    },
+    "operator_display_name": {
+      "@id": "plugsurfing:operator_display_name",
+      "@type": "xsd:string"
+    },
+    "opening_times": {
+      "@id": "plugsurfing:opening_times",
+      "@type": "@id"
+    },
+    "directions": {
+      "@id": "plugsurfing:directions",
+      "@container": "@list"
+    },
+    "postal_code": {
+      "@id": "plugsurfing:postal_code",
+      "@type": "xsd:string"
+    },
+    "openNow": {
+      "@id": "plugsurfing:openNow",
+      "@type": "xsd:boolean"
+    },
+    "is_green_energy": {
+      "@id": "plugsurfing:is_green_energy",
+      "@type": "xsd:boolean"
+    },
+    "last_updated": {
+      "@id": "plugsurfing:last_updated",
+      "@type": "xsd:string"
+    },
+    "Coordinates": "plugsurfing:Coordinates",
+    "latitude": {
+      "@id": "plugsurfing:latitude",
+      "@type": "xsd:string"
+    },
+    "longitude": {
+      "@id": "plugsurfing:longitude",
+      "@type": "xsd:string"
+    },
+    "Evse": "plugsurfing:Evse",
+    "evse_id": {
+      "@id": "plugsurfing:evse_id",
+      "@type": "xsd:string"
+    },
+    "physical_reference": {
+      "@id": "plugsurfing:physical_reference",
+      "@type": "xsd:string"
+    },
+    "connectors": {
+      "@id": "plugsurfing:connectors",
+      "@container": "@list"
+    },
+    "capabilities": {
+      "@id": "plugsurfing:capabilities",
+      "@container": "@list"
+    },
+    "parking_restrictions": {
+      "@id": "plugsurfing:parking_restrictions",
+      "@container": "@list"
+    },
+    "LocationLiveData": "plugsurfing:LocationLiveData",
+    "charge_point_statuses": {
+      "@id": "plugsurfing:charge_point_statuses"
+    },
+    "ChargePointLiveData": "plugsurfing:ChargePointLiveData",
+    "status_since": {
+      "@id": "plugsurfing:status_since",
+      "@type": "xsd:dateTime"
+    },
+    "Connector": "plugsurfing:Connector",
+    "standard": {
+      "@id": "plugsurfing:standard",
+      "@type": "@id"
+    },
+    "power": {
+      "@id": "plugsurfing:power",
+      "@type": "xsd:integer"
+    },
+    "power_type": {
+      "@id": "plugsurfing:power_type",
+      "@type": "xsd:string"
+    },
+    "price": {
+      "@id": "plugsurfing:price"
+    },
+    "max_amperage": {
+      "@id": "plugsurfing:max_amperage",
+      "@type": "xsd:decimal"
+    },
+    "max_voltage": {
+      "@id": "plugsurfing:max_voltage",
+      "@type": "xsd:decimal"
+    },
+    "BusinessDetails": "plugsurfing:BusinessDetails",
+    "hotline": {
+      "@id": "plugsurfing:hotline",
+      "@type": "xsd:string"
+    },
+    "external_id": {
+      "@id": "plugsurfing:external_id",
+      "@type": "xsd:string"
+    },
+    "OpeningTimes": "plugsurfing:OpeningTimes",
+    "twentyfourseven": {
+      "@id": "plugsurfing:twentyfourseven",
+      "@type": "xsd:boolean"
+    },
+    "regular_hours": {
+      "@id": "plugsurfing:regular_hours",
+      "@container": "@list"
+    },
+    "exceptional_openings": {
+      "@id": "plugsurfing:exceptional_openings",
+      "@container": "@list"
+    },
+    "exceptional_closings": {
+      "@id": "plugsurfing:exceptional_closings",
+      "@container": "@list"
+    },
+    "RegularHours": "plugsurfing:RegularHours",
+    "weekday": {
+      "@id": "plugsurfing:weekday",
+      "@type": "xsd:integer"
+    },
+    "period_begin": {
+      "@id": "plugsurfing:period_begin",
+      "@type": "xsd:string"
+    },
+    "period_end": {
+      "@id": "plugsurfing:period_end",
+      "@type": "xsd:string"
+    },
+    "ExceptionalPeriod": "plugsurfing:ExceptionalPeriod",
+    "DisplayText": "plugsurfing:DisplayText",
+    "text": {
+      "@id": "plugsurfing:text",
+      "@type": "xsd:string"
+    },
+    "ConnectorStandard": "plugsurfing:ConnectorStandard",
+    "ConnectorStatus": "plugsurfing:ConnectorStatus",
+    "ParkingType": "plugsurfing:ParkingType",
+    "ParkingRestriction": "plugsurfing:ParkingRestriction",
+    "Capabilities": "plugsurfing:Capabilities",
+    "Aggregate": "plugsurfing:Aggregate",
+    "count": {
+      "@id": "plugsurfing:count",
+      "@type": "xsd:integer"
+    },
+    "RadiusRequest": "plugsurfing:RadiusRequest",
+    "filters": {
+      "@id": "plugsurfing:filters",
+      "@type": "@id"
+    },
+    "RectangleRequest": "plugsurfing:RectangleRequest",
+    "AlongRouteRequest": "plugsurfing:AlongRouteRequest",
+    "points": {
+      "@id": "plugsurfing:points",
+      "@container": "@list"
+    },
+    "GeoFilters": "plugsurfing:GeoFilters",
+    "connectorStandards": {
+      "@id": "plugsurfing:connectorStandards",
+      "@container": "@list"
+    },
+    "locationStatuses": {
+      "@id": "plugsurfing:locationStatuses",
+      "@container": "@list"
+    },
+    "powerType": {
+      "@id": "plugsurfing:powerType",
+      "@type": "xsd:string"
+    },
+    "operatorIds": {
+      "@id": "plugsurfing:operatorIds",
+      "@container": "@list"
+    },
+    "excludedOperatorIds": {
+      "@id": "plugsurfing:excludedOperatorIds",
+      "@container": "@list"
+    },
+    "open247": {
+      "@id": "plugsurfing:open247",
+      "@type": "xsd:boolean"
+    },
+    "evseIds": {
+      "@id": "plugsurfing:evseIds",
+      "@container": "@list"
+    },
+    "PriceComponent": "plugsurfing:PriceComponent",
+    "step_size": {
+      "@id": "plugsurfing:step_size",
+      "@type": "xsd:decimal"
+    },
+    "PriceElement": "plugsurfing:PriceElement",
+    "price_components": {
+      "@id": "plugsurfing:price_components",
+      "@container": "@list"
+    },
+    "restrictions": {
+      "@id": "plugsurfing:restrictions"
+    },
+    "OperatorsListResponse": "plugsurfing:OperatorsListResponse",
+    "operators": {
+      "@id": "plugsurfing:operators",
+      "@container": "@list"
+    },
+    "Operator": "plugsurfing:Operator",
+    "externalId": {
+      "@id": "plugsurfing:externalId",
+      "@type": "xsd:string"
+    },
+    "PaymentOption": "plugsurfing:PaymentOption",
+    "paymentMethod": {
+      "@id": "plugsurfing:paymentMethod",
+      "@type": "xsd:string"
+    },
+    "CreditCardPaymentOption": "plugsurfing:CreditCardPaymentOption",
+    "brand": {
+      "@id": "plugsurfing:brand",
+      "@type": "xsd:string"
+    },
+    "displayBrand": {
+      "@id": "plugsurfing:displayBrand",
+      "@type": "xsd:string"
+    },
+    "countryCode": {
+      "@id": "plugsurfing:countryCode",
+      "@type": "xsd:string"
+    },
+    "expMonth": {
+      "@id": "plugsurfing:expMonth",
+      "@type": "xsd:integer"
+    },
+    "expYear": {
+      "@id": "plugsurfing:expYear",
+      "@type": "xsd:integer"
+    },
+    "last4": {
+      "@id": "plugsurfing:last4",
+      "@type": "xsd:string"
+    },
+    "PrepaidBalance": "plugsurfing:PrepaidBalance",
+    "balanceTotal": {
+      "@id": "plugsurfing:balanceTotal"
+    },
+    "balances": {
+      "@id": "plugsurfing:balances",
+      "@container": "@list"
+    },
+    "SetupIntent": "plugsurfing:SetupIntent",
+    "SessionsHistoryRequest": "plugsurfing:SessionsHistoryRequest",
+    "sessionStatus": {
+      "@id": "plugsurfing:sessionStatus",
+      "@container": "@list"
+    },
+    "chargingKeyId": {
+      "@id": "plugsurfing:chargingKeyId",
+      "@type": "xsd:string"
+    },
+    "startTime": {
+      "@id": "plugsurfing:startTime",
+      "@type": "xsd:dateTime"
+    },
+    "endTime": {
+      "@id": "plugsurfing:endTime",
+      "@type": "xsd:dateTime"
+    },
+    "limit": {
+      "@id": "plugsurfing:limit",
+      "@type": "xsd:integer"
+    },
+    "SessionsHistoryResponse": "plugsurfing:SessionsHistoryResponse",
+    "sessions": {
+      "@id": "plugsurfing:sessions",
+      "@container": "@list"
+    },
+    "SessionEnergy": "plugsurfing:SessionEnergy",
+    "unit": {
+      "@id": "plugsurfing:unit",
+      "@type": "xsd:string"
+    },
+    "value": {
+      "@id": "plugsurfing:value",
+      "@type": "xsd:decimal"
+    },
+    "SessionCharger": "plugsurfing:SessionCharger",
+    "chargingStationName": {
+      "@id": "plugsurfing:chargingStationName",
+      "@type": "xsd:string"
+    },
+    "connectorLabel": {
+      "@id": "plugsurfing:connectorLabel",
+      "@type": "xsd:string"
+    },
+    "evseId": {
+      "@id": "plugsurfing:evseId",
+      "@type": "xsd:string"
+    },
+    "streetName": {
+      "@id": "plugsurfing:streetName",
+      "@type": "xsd:string"
+    },
+    "Transaction": "plugsurfing:Transaction",
+    "paymentOutcome": {
+      "@id": "plugsurfing:paymentOutcome",
+      "@type": "xsd:string"
+    },
+    "amount": {
+      "@id": "plugsurfing:amount",
+      "@type": "@id"
+    },
+    "time": {
+      "@id": "plugsurfing:time",
+      "@type": "@id"
+    },
+    "SessionAmount": "plugsurfing:SessionAmount",
+    "currencyCode": {
+      "@id": "plugsurfing:currencyCode",
+      "@type": "xsd:string"
+    },
+    "minorExclVat": {
+      "@id": "plugsurfing:minorExclVat",
+      "@type": "xsd:integer"
+    },
+    "minorInclVat": {
+      "@id": "plugsurfing:minorInclVat",
+      "@type": "xsd:integer"
+    },
+    "vat": {
+      "@id": "plugsurfing:vat",
+      "@type": "xsd:string"
+    },
+    "SessionStartRequest": "plugsurfing:SessionStartRequest",
+    "SessionStartResponse": "plugsurfing:SessionStartResponse",
+    "sessionId": {
+      "@id": "plugsurfing:sessionId",
+      "@type": "xsd:string"
+    },
+    "threeDSClientSecret": {
+      "@id": "plugsurfing:threeDSClientSecret",
+      "@type": "xsd:string"
+    },
+    "Receipt": "plugsurfing:Receipt",
+    "PaymentRequest": "plugsurfing:PaymentRequest",
+    "returnUrl": {
+      "@id": "plugsurfing:returnUrl",
+      "@type": "xsd:string"
+    },
+    "PaymentResponse": "plugsurfing:PaymentResponse",
+    "PaymentStatus": "plugsurfing:PaymentStatus",
+    "Session": "plugsurfing:Session",
+    "balanceStatus": {
+      "@id": "plugsurfing:balanceStatus",
+      "@type": "@id"
+    },
+    "charger": {
+      "@id": "plugsurfing:charger",
+      "@type": "@id"
+    },
+    "balanceAmountMinor": {
+      "@id": "plugsurfing:balanceAmountMinor",
+      "@type": "xsd:decimal"
+    },
+    "chargingKeyType": {
+      "@id": "plugsurfing:chargingKeyType",
+      "@type": "xsd:string"
+    },
+    "duration": {
+      "@id": "plugsurfing:duration",
+      "@type": "xsd:string"
+    },
+    "energy": {
+      "@id": "plugsurfing:energy",
+      "@type": "@id"
+    },
+    "receiptAvailable": {
+      "@id": "plugsurfing:receiptAvailable",
+      "@type": "xsd:boolean"
+    },
+    "site": {
+      "@id": "plugsurfing:site",
+      "@type": "xsd:string"
+    },
+    "transactions": {
+      "@id": "plugsurfing:transactions",
+      "@container": "@list"
+    },
+    "SessionStatus": "plugsurfing:SessionStatus",
+    "SessionBalanceStatus": "plugsurfing:SessionBalanceStatus",
+    "UserGroup": "plugsurfing:UserGroup",
+    "memberSince": {
+      "@id": "plugsurfing:memberSince",
+      "@type": "xsd:dateTime"
+    },
+    "CreateUser": "plugsurfing:CreateUser",
+    "email": {
+      "@id": "plugsurfing:email",
+      "@type": "xsd:string"
+    },
+    "UpdateUser": "plugsurfing:UpdateUser",
+    "vatNumber": {
+      "@id": "plugsurfing:vatNumber",
+      "@type": "xsd:string"
+    },
+    "billingAddress": {
+      "@id": "plugsurfing:billingAddress"
+    },
+    "UserInfo": "plugsurfing:UserInfo",
+    "hasDebt": {
+      "@id": "plugsurfing:hasDebt",
+      "@type": "xsd:boolean"
+    },
+    "userGroups": {
+      "@id": "plugsurfing:userGroups",
+      "@container": "@list"
+    },
+    "StripePublishableApiKeyResponse": "plugsurfing:StripePublishableApiKeyResponse",
+    "stripePublishableApiKey": {
+      "@id": "plugsurfing:stripePublishableApiKey",
+      "@type": "xsd:string"
+    },
+    "PrepaidProduct": "plugsurfing:PrepaidProduct",
+    "amountMinorUnits": {
+      "@id": "plugsurfing:amountMinorUnits",
+      "@type": "xsd:integer"
+    },
+    "UserGroupProduct": "plugsurfing:UserGroupProduct",
+    "customerGroupId": {
+      "@id": "plugsurfing:customerGroupId",
+      "@type": "xsd:integer"
+    },
+    "ErrorResponse": "plugsurfing:ErrorResponse",
+    "message": {
+      "@id": "plugsurfing:message",
+      "@type": "xsd:string"
+    },
+    "InvalidRequestErrorResponse": "plugsurfing:InvalidRequestErrorResponse",
+    "fields": {
+      "@id": "plugsurfing:fields",
+      "@container": "@list"
+    },
+    "SessionEventWebhookEnvelope": "plugsurfing:SessionEventWebhookEnvelope",
+    "event": {
+      "@id": "plugsurfing:event",
+      "@type": "xsd:string"
+    },
+    "payload": {
+      "@id": "plugsurfing:payload",
+      "@type": "@id"
+    },
+    "UserSessionEventWebhookPayload": "plugsurfing:UserSessionEventWebhookPayload",
+    "userId": {
+      "@id": "plugsurfing:userId",
+      "@type": "xsd:string"
+    },
+    "timestamp": {
+      "@id": "plugsurfing:timestamp",
+      "@type": "xsd:dateTime"
+    },
+    "feeWillApplyFrom": {
+      "@id": "plugsurfing:feeWillApplyFrom",
+      "@type": "xsd:dateTime"
+    },
+    "feeType": {
+      "@id": "plugsurfing:feeType",
+      "@type": "xsd:string"
+    },
+    "FleetSessionEventWebhookPayload": "plugsurfing:FleetSessionEventWebhookPayload",
+    "CdrWebhookRequest": "plugsurfing:CdrWebhookRequest",
+    "requestId": {
+      "@id": "plugsurfing:requestId",
+      "@type": "xsd:string"
+    },
+    "payer": {
+      "@id": "plugsurfing:payer",
+      "@type": "@id"
+    },
+    "item": {
+      "@id": "plugsurfing:item",
+      "@type": "@id"
+    },
+    "CdrWebhookUserPayer": "plugsurfing:CdrWebhookUserPayer",
+    "chargingKey": {
+      "@id": "plugsurfing:chargingKey",
+      "@type": "@id"
+    },
+    "CdrWebhookUserChargingKey": "plugsurfing:CdrWebhookUserChargingKey",
+    "identificationType": {
+      "@id": "plugsurfing:identificationType",
+      "@type": "@id"
+    },
+    "CdrWebhookChargingKeyPayer": "plugsurfing:CdrWebhookChargingKeyPayer",
+    "CdrWebhookIdentificationType": "plugsurfing:CdrWebhookIdentificationType",
+    "CdrWebhookSessionItem": "plugsurfing:CdrWebhookSessionItem",
+    "externalSessionId": {
+      "@id": "plugsurfing:externalSessionId",
+      "@type": "xsd:string"
+    },
+    "startMethod": {
+      "@id": "plugsurfing:startMethod",
+      "@type": "xsd:string"
+    },
+    "stopTime": {
+      "@id": "plugsurfing:stopTime",
+      "@type": "xsd:dateTime"
+    },
+    "energyConsumedInWh": {
+      "@id": "plugsurfing:energyConsumedInWh",
+      "@type": "xsd:integer"
+    },
+    "totalParkingTimeInSeconds": {
+      "@id": "plugsurfing:totalParkingTimeInSeconds",
+      "@type": "xsd:integer"
+    },
+    "empCost": {
+      "@id": "plugsurfing:empCost",
+      "@type": "@id"
+    },
+    "cpoClaimedCost": {
+      "@id": "plugsurfing:cpoClaimedCost",
+      "@type": "@id"
+    },
+    "location": {
+      "@id": "plugsurfing:location",
+      "@type": "@id"
+    },
+    "homeCharging": {
+      "@id": "plugsurfing:homeCharging",
+      "@type": "@id"
+    },
+    "CdrWebhookCost": "plugsurfing:CdrWebhookCost",
+    "totalCostMinorUnitsInclVat": {
+      "@id": "plugsurfing:totalCostMinorUnitsInclVat",
+      "@type": "xsd:integer"
+    },
+    "totalCostMinorUnitsExclVat": {
+      "@id": "plugsurfing:totalCostMinorUnitsExclVat",
+      "@type": "xsd:integer"
+    },
+    "priceIncludesVat": {
+      "@id": "plugsurfing:priceIncludesVat",
+      "@type": "xsd:boolean"
+    },
+    "costSegments": {
+      "@id": "plugsurfing:costSegments",
+      "@container": "@list"
+    },
+    "CdrWebhookCostSegment": "plugsurfing:CdrWebhookCostSegment",
+    "vatRate": {
+      "@id": "plugsurfing:vatRate",
+      "@type": "xsd:decimal"
+    },
+    "pricePerUnit": {
+      "@id": "plugsurfing:pricePerUnit",
+      "@type": "xsd:decimal"
+    },
+    "pricePerUnitMinorUnitsInclVat": {
+      "@id": "plugsurfing:pricePerUnitMinorUnitsInclVat",
+      "@type": "xsd:integer"
+    },
+    "segmentCostMinorUnitsExclVat": {
+      "@id": "plugsurfing:segmentCostMinorUnitsExclVat",
+      "@type": "xsd:integer"
+    },
+    "segmentCostMinorUnitsInclVat": {
+      "@id": "plugsurfing:segmentCostMinorUnitsInclVat",
+      "@type": "xsd:integer"
+    },
+    "from": {
+      "@id": "plugsurfing:from",
+      "@type": "xsd:dateTime"
+    },
+    "to": {
+      "@id": "plugsurfing:to",
+      "@type": "xsd:dateTime"
+    },
+    "CdrWebhookUnit": "plugsurfing:CdrWebhookUnit",
+    "CdrWebhookLocation": "plugsurfing:CdrWebhookLocation",
+    "cpoId": {
+      "@id": "plugsurfing:cpoId",
+      "@type": "xsd:string"
+    },
+    "cpoName": {
+      "@id": "plugsurfing:cpoName",
+      "@type": "xsd:string"
+    },
+    "private": {
+      "@id": "plugsurfing:private",
+      "@type": "xsd:boolean"
+    },
+    "CdrWebhookGeoCoordinates": "plugsurfing:CdrWebhookGeoCoordinates",
+    "CdrWebhookHomeCharging": "plugsurfing:CdrWebhookHomeCharging",
+    "exemptVat": {
+      "@id": "plugsurfing:exemptVat",
+      "@type": "xsd:boolean"
+    },
+    "EmpChargingKeyTransferRequest": "plugsurfing:EmpChargingKeyTransferRequest",
+    "targetFleetId": {
+      "@id": "plugsurfing:targetFleetId",
+      "@type": "xsd:string"
+    },
+    "EmpChargingKeyOrderAssignRequest": "plugsurfing:EmpChargingKeyOrderAssignRequest",
+    "EmpProductPrinting": "plugsurfing:EmpProductPrinting",
+    "EmpProduct": "plugsurfing:EmpProduct",
+    "description": {
+      "@id": "plugsurfing:description",
+      "@type": "xsd:string"
+    },
+    "EmpProductsResponse": "plugsurfing:EmpProductsResponse"
+  },
+  "@type": "schema:Dataset",
+  "schema:name": "Plugsurfing API JSON-LD context",
+  "schema:description": "A JSON-LD @context for the objects Plugsurfing's own API contract declares: one class per component schema, one property per declared field, typed from the contract. Derived by script (derive-json-ld.py, 2026-10-14) from openapi/_original/plugsurfing-reference-openapi.json.",
+  "dcterms:created": "2026-10-14",
+  "dcterms:source": [
+    "openapi/_original/plugsurfing-reference-openapi.json"
+  ]
+}

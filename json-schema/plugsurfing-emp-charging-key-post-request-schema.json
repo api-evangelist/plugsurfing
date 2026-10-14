@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/plugsurfing/main/json-schema/plugsurfing-emp-charging-key-post-request-schema.json",
+  "title": "EmpChargingKeyPostRequest",
+  "description": "Request payload to create an EMP charging key.",
+  "x-generated": "2026-10-14",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/_original/plugsurfing-reference-openapi.json#/components/schemas/EmpChargingKeyPostRequest",
+  "type": "object",
+  "required": [
+    "keyIdentifier",
+    "contractId",
+    "visualNumber"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the Charging key"
+    },
+    "keyIdentifier": {
+      "type": "string",
+      "description": "Charging key identifier in hexadecimal, little-endian format with usually 8 or 14 characters."
+    },
+    "fleetId": {
+      "type": "string",
+      "description": "Fleet id"
+    },
+    "fleetName": {
+      "type": "string",
+      "description": "The name associated to the fleetId"
+    },
+    "contractId": {
+      "type": "string",
+      "description": "Charging key contract id"
+    },
+    "visualNumber": {
+      "type": "string",
+      "description": "Identifier printed on the physical key"
+    },
+    "enabled": {
+      "type": "boolean",
+      "description": "Indicates if the new charging key should be enabled or disabled.",
+      "default": true
+    },
+    "whitelist": {
+      "$ref": "#/$defs/DriveApiChargingKeyWhitelistType",
+      "description": "Defines whether the CPO may allow a session for this charging key when it cannot get a response from the EMP, or must always rely on realtime authorization from the EMP. Possible values: ALLOWED_OFFLINE, NEVER."
+    }
+  },
+  "$defs": {
+    "DriveApiChargingKeyWhitelistType": {
+      "type": "string",
+      "enum": [
+        "ALLOWED_OFFLINE",
+        "NEVER"
+      ],
+      "description": "Defines when authorization of a charging key by the CPO is allowed.\nALLOWED_OFFLINE: CPO should use realtime authorization. But when the CPO cannot get a response from the eMSP, the CPO shall allow the charging key to be used.\nNEVER: Only realtime authorization is allowed. CPO shall always send a realtime authorization for any use of this charging key to the MSP."
+    }
+  }
+}

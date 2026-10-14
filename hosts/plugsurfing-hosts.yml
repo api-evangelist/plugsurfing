@@ -1,0 +1,165 @@
+generated: '2026-10-14'
+method: derived
+source: the pre-flight dossier, apis.yml pointers, spec servers, well-known, vendors -- nothing fetched here
+generator: derive-hosts.py
+summary:
+  hosts: 12
+  own: 8
+  other_domain: 2
+  platform: 2
+  roles:
+  - api
+  - docs
+  - other
+  - portal
+  - source
+  - status
+  - support
+  - website
+hosts:
+- host: api.plugsurfing.com
+  found_by:
+  - contract-discovery
+  types: []
+  serves: []
+  registrable_domain: plugsurfing.com
+  role: api
+  relation: own
+- host: developer.plugsurfing.com
+  found_by:
+  - pointer
+  - apis[]
+  - probed
+  - site-links
+  - docs-index
+  - spec-found
+  - contract-discovery
+  - well-known
+  - vendor-detect
+  types:
+  - ChangeLog
+  - DeveloperPortal
+  - Documentation
+  - GettingStarted
+  serves:
+  - docs
+  - spec
+  - cdn
+  vendor: cloudflare
+  registrable_domain: plugsurfing.com
+  role: portal
+  relation: own
+- host: en.wikipedia.org
+  found_by:
+  - docs-index
+  types: []
+  serves:
+  - docs
+  registrable_domain: wikipedia.org
+  role: other
+  relation: platform
+- host: github.com
+  found_by:
+  - pointer
+  types:
+  - GitHubOrganization
+  serves: []
+  registrable_domain: github.com
+  role: source
+  relation: platform
+- host: mintlify.com
+  found_by:
+  - docs-index
+  types: []
+  serves:
+  - docs
+  registrable_domain: mintlify.com
+  role: other
+  relation: other-domain
+- host: partnersupport.plugsurfing.com
+  found_by:
+  - probed
+  - site-links
+  - contract-discovery
+  - well-known
+  types: []
+  serves: []
+  registrable_domain: plugsurfing.com
+  role: other
+  relation: own
+- host: plugsurfing.com
+  found_by:
+  - pointer
+  - probed
+  - site-links
+  - contract-discovery
+  - well-known
+  types:
+  - APIReference
+  - Blog
+  - TermsOfService
+  - PrivacyPolicy
+  serves: []
+  registrable_domain: plugsurfing.com
+  role: docs
+  relation: own
+- host: plugsurfing.mintlify.site
+  found_by:
+  - spec-found
+  types: []
+  serves:
+  - spec
+  registrable_domain: mintlify.site
+  role: other
+  relation: other-domain
+- host: status.plugsurfing.com
+  found_by:
+  - pointer
+  - probed
+  - site-links
+  - well-known
+  types:
+  - StatusPage
+  serves: []
+  registrable_domain: plugsurfing.com
+  role: status
+  relation: own
+- host: support.plugsurfing.com
+  found_by:
+  - pointer
+  - probed
+  - site-links
+  - well-known
+  - vendor-detect
+  types:
+  - Support
+  serves:
+  - support
+  vendor: zendesk
+  registrable_domain: plugsurfing.com
+  role: support
+  relation: own
+- host: www.plugsurfing.com
+  found_by:
+  - pointer
+  - probed
+  - contract-discovery
+  - well-known
+  - vendor-detect
+  types:
+  - Website
+  serves:
+  - hosting
+  vendor: vercel
+  registrable_domain: plugsurfing.com
+  role: website
+  relation: own
+- host: '{environment}.plugsurfing.com'
+  found_by:
+  - apis[]
+  types: []
+  serves:
+  - api
+  registrable_domain: plugsurfing.com
+  role: other
+  relation: own

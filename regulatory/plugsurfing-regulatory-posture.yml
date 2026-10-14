@@ -1,0 +1,28 @@
+generated: '2026-10-14'
+method: probed
+source: https://plugsurfing.com/legal/privacy-policy/
+signals:
+  data_subject_request:
+    evidence:
+      - source: https://plugsurfing.com/legal/privacy-policy/
+        http_status: 200
+        fetched: /tmp/privacy.html
+        quote: "The data controller is Plugsurfing GmbH, Weserstraße 175, 12045 Berlin, Germany (hereinafter “Plugsurfing”)."
+        section: "Who is the data controller?"
+        note: Identifies the data controller, establishing the entity responsible for data subject rights.
+  data_retention:
+    evidence:
+      - source: https://plugsurfing.com/legal/privacy-policy/
+        http_status: 200
+        fetched: /tmp/privacy.html
+        quote: "The specific retention periods may be different depending on the categories of data. As a general rule, your personal data are stored for the duration of the customer relationship as well as for a period of three (3) years from the end of the customer relationship. Whereas e.g. information about transactions will be kept for at least ten (10) years on a legal basis."
+        section: "How does Plugsurfing process your personal data?"
+        note: Describes retention periods for personal data.
+  incident_notification:
+    evidence:
+      - source: https://plugsurfing.com/legal/privacy-policy/
+        http_status: 200
+        fetched: /tmp/privacy.html
+        quote: "Security data – such as passwords, security incident information;"
+        section: "Security data"
+        note: Mentions security incident information, indicating a policy for incident notification.

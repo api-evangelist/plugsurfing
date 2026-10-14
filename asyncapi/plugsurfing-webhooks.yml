@@ -1,0 +1,30 @@
+generated: '2026-10-14'
+method: searched
+generator: extract-docs-artifacts.py (local)
+source: https://developer.plugsurfing.com/docs/drive-api/webhooks.md
+sources:
+- https://developer.plugsurfing.com/docs/drive-api/webhooks.md
+- https://developer.plugsurfing.com/docs/drive-api/webhooks
+- https://developer.plugsurfing.com/docs/drive-api/events.md
+- https://developer.plugsurfing.com/reference/sessionEventsWebhook.md
+description: Plugsurfing Drive API webhooks deliver session lifecycle events and optional CDR forwarding.
+events:
+- event: SESSION_STARTED
+  description: Sent when a charging session starts for a user or fleet.
+- event: SESSION_START_FAILED
+  description: Emitted when a session fails to start (denied, rejected, or other failure).
+- event: SESSION_PROGRESS
+  description: Delivered during an ongoing session when updated energy data is received.
+- event: SESSION_FEE_INCURRING
+  description: Notifies that a session may incur a non‑charging fee (e.g., blocking, parking, or congesting).
+- event: SESSION_STOPPED
+  description: Sent right after a remote session stops successfully.
+- event: SESSION_STOP_FAILED
+  description: Emitted when stopping a session fails, putting the session into STOP_FAILED status.
+- event: SESSION_COMPLETE
+  description: Sent when a session is priced and payment is successful or the CDR has been delivered.
+delivery:
+  retries: Session events are sent once without retries; CDR forwarding is retried nightly for up to 7 days if a 200 response is not received.
+note: All webhook requests are HTTP POST and include HMAC signatures when enabled. The same requestId is reused across CDR forwarding retries
+  for deduplication.
+docs: https://developer.plugsurfing.com/docs/drive-api/webhooks.md

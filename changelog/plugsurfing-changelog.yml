@@ -1,0 +1,7 @@
+generated: '2026-10-14'
+method: searched
+source: https://developer.plugsurfing.com/changelog
+entries:
+  - version: "2026-10-13"
+    date: '2026-10-13'
+    highlights: "Added support for PATCH of kWh on ongoing sessions."
