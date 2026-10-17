@@ -1,0 +1,280 @@
+openapi: 3.2.0
+info:
+  title: Drive EMP Fleets API
+  version: 1.0.0
+  description: The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network. It enables you to manage users, charging keys, search for charging locations, handle payments, and control charging sessions.
+servers:
+- url: https://{environment}.plugsurfing.com
+  variables:
+    environment:
+      enum:
+      - drive-api-stage
+      default: drive-api-stage
+      description: API environment - use drive-api-stage for testing and drive-api for production
+tags:
+- name: EMP Fleets
+  description: E-Mobility Provider specific endpoints for managing fleets
+paths:
+  /emp/v1/fleets:
+    post:
+      tags:
+      - EMP Fleets
+      summary: Create a fleet
+      description: Creates a new fleet organization. The fleetId must be unique and is required. An optional fleetName can be provided to give the fleet a human-readable name.
+      operationId: createFleet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmpFleetCreationRequest'
+            example:
+              fleetId: y1nNLJqb7m
+              fleetName: Fleet Inc.
+        required: true
+      responses:
+        '200':
+          description: Fleet created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpFleetCreationResponse'
+              example:
+                fleetId: y1nNLJqb7m
+                fleetName: Fleet Inc.
+        '400':
+          description: Invalid request (missing/invalid fleetId or fleetName)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '409':
+          description: Conflict - fleetId already exists with a different fleetName than the one provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /emp/v1/fleets/{fleetId}/rename:
+    put:
+      tags:
+      - EMP Fleets
+      summary: Rename a fleet
+      description: Renames an existing fleet. The fleet must exist, the caller must have access to that fleet, and a valid non-empty newName must be provided in the request body.
+      operationId: renameFleet
+      parameters:
+      - name: fleetId
+        in: path
+        description: The unique identifier of the fleet to rename
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmpFleetRenameRequest'
+            example:
+              newName: Fleet Inc
+        required: true
+      responses:
+        '200':
+          description: Fleet renamed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpFleetCreationResponse'
+              example:
+                fleetId: y1nNLJqb7m
+                fleetName: Fleet Inc.
+        '400':
+          description: Invalid request (missing/invalid newName)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '403':
+          description: Access denied (caller does not have access to the fleet organization)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '404':
+          description: Fleet not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '409':
+          description: Conflict - the requested newName cannot be applied (for example, a fleet with that name already exists)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /emp/v1/fleets/{fleetId}/invitation:
+    get:
+      tags:
+      - EMP Fleets
+      summary: Get fleet invitation codes
+      description: Retrieves all active invitation codes for a fleet. These codes allow users to join the fleet.
+      operationId: getFleetInvitationCodes
+      parameters:
+      - name: fleetId
+        in: path
+        description: The unique identifier of the fleet
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Active invitation codes retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpFleetInvitationCodeResponse'
+              example:
+              - code: string
+        '403':
+          description: Access denied (caller doesn't have access to the organization)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '404':
+          description: Fleet not found or no active invitation codes available for this fleet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+components:
+  schemas:
+    EmpFleetInvitationCodeResponse:
+      type: array
+      items:
+        type: object
+        required:
+        - code
+        properties:
+          code:
+            type: string
+            description: The fleet invitation code
+    EmpFleetRenameRequest:
+      type: object
+      required:
+      - newName
+      properties:
+        newName:
+          type: string
+          example: Fleet Inc
+          description: New name of the fleet
+          maxLength: 100
+    EmpFleetCreationResponse:
+      required:
+      - fleetId
+      type: object
+      properties:
+        fleetId:
+          type: string
+          example: y1nNLJqb7m
+        fleetName:
+          type: string
+          example: Fleet Inc.
+    InvalidRequestErrorResponse:
+      title: InvalidRequestErrorResponse
+      type: object
+      required:
+      - message
+      - fields
+      properties:
+        message:
+          type: string
+        fields:
+          type: array
+          items:
+            title: InvalidField
+            type: object
+            required:
+            - name
+            - message
+            - rejectedValue
+            properties:
+              name:
+                type: string
+              message:
+                type: string
+                example: UserId is not correct
+              rejectedValue:
+                type: string
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      properties:
+        message:
+          type: string
+    EmpFleetCreationRequest:
+      required:
+      - fleetId
+      type: object
+      properties:
+        fleetId:
+          type: string
+          example: y1nNLJqb7m
+          maxLength: 100
+        fleetName:
+          type: string
+          example: Fleet Inc.
+          maxLength: 100
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication

@@ -1,0 +1,698 @@
+openapi: 3.2.0
+info:
+  title: Drive Charging Keys API
+  version: 1.0.0
+  description: The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network. It enables you to manage users, charging keys, search for charging locations, handle payments, and control charging sessions.
+servers:
+- url: https://{environment}.plugsurfing.com
+  variables:
+    environment:
+      enum:
+      - drive-api-stage
+      default: drive-api-stage
+      description: API environment - use drive-api-stage for testing and drive-api for production
+tags:
+- name: Charging Keys
+  description: Manage physical and virtual charging keys including creation, activation, updates, and status management. Essential for user access to charging stations.
+paths:
+  /drive/v1/users/{userId}/charging-keys/{referenceId}/activate:
+    post:
+      tags:
+      - Charging Keys
+      summary: Activate a charging key
+      description: Activates a charging key for a specific user. The key must exist and be unassigned. Once activated, the key can be used to start charging sessions.
+      operationId: activateUserChargingKey
+      parameters:
+      - name: referenceId
+        in: path
+        description: Human-readable identifier written on the rfid card or tag, visualNumber from the charging key reservation.
+        example: DE*8PS*FR1RFK*4
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        description: The unique identifier of the user who will own this charging key. Must be a valid user ID in your system.
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChargingKeyActivateRequest'
+            example:
+              whitelist: NEVER
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChargingKey'
+              example:
+                keyId: 0eb7732d-eb7a-418c
+                referenceId: DE*8PS*AD21B1*3
+                contractId: DE-8PS-C0AD21B13-Q
+                name: My RFID key
+                validFrom: '2022-01-24T11:25:54.210Z'
+                validTo: '2032-01-24T11:25:54.210Z'
+                type: card
+                enabled: true
+                whitelist: NEVER
+                created: '2025-01-15T10:30:00Z'
+                updated: '2025-01-15T10:30:00Z'
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User or charging key not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '409':
+          description: Key already in use
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /drive/v1/users/{userId}/charging-keys/{identifier}:
+    patch:
+      tags:
+      - Charging Keys
+      summary: Edit a charging key
+      description: 'Modify a charging key''s properties. You can change the key''s name and enable/disable it. Disabling a key immediately prevents it from being used for charging. Important notes:
+
+        - Only non-null fields in the request are applied
+
+        - Disabling a key takes effect immediately across all charging stations
+
+        - Some CPOs cache key status, so in rare cases it may take a few minutes for the disable action to propagate
+
+        - Name changes are purely cosmetic and don''t affect the key''s functionality'
+      operationId: updateUserChargingKey
+      parameters:
+      - name: identifier
+        in: path
+        description: The unique identifier for the charging key - can be either the keyId (internal identifier) or contractId (roaming identifier)
+        example: 0eb7732d-eb7a-418c
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        description: The unique identifier of the user who owns the charging key
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChargingKeyPatchRequest'
+            example:
+              name: My RFID key updated
+              enabled: true
+              whitelist: ALLOWED_OFFLINE
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChargingKey'
+              example:
+                keyId: 0eb7732d-eb7a-418c
+                referenceId: DE*8PS*AD21B1*3
+                contractId: DE-8PS-C0AD21B13-Q
+                name: My RFID key
+                validFrom: '2022-01-24T11:25:54.210Z'
+                validTo: '2032-01-24T11:25:54.210Z'
+                type: card
+                enabled: true
+                whitelist: ALLOWED_OFFLINE
+                created: '2025-01-15T10:30:00Z'
+                updated: '2025-01-15T10:30:00Z'
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User or charging key not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '409':
+          description: Conflict — can happen when making two requests to update the same charging key in a short period of time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      deprecated: false
+      security:
+      - ApiKeyAuth: []
+  /drive/v1/users/{userId}/charging-keys:
+    get:
+      tags:
+      - Charging Keys
+      summary: Get user's charging keys
+      description: Retrieves all charging keys associated with a specific user. This includes both active and inactive keys, physical and virtual keys. The response contains detailed information about each key including its status, type, and validity period.
+      operationId: listUserChargingKeys
+      parameters:
+      - name: userId
+        in: path
+        description: The unique identifier of the user whose charging keys should be retrieved
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  keys:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ChargingKey'
+              example:
+                keys:
+                - keyId: 0eb7732d-eb7a-418c
+                  referenceId: DE*8PS*AD21B1*3
+                  contractId: DE-8PS-C0AD21B13-Q
+                  name: My RFID key
+                  validFrom: '2022-01-24T11:25:54.210Z'
+                  validTo: '2032-01-24T11:25:54.210Z'
+                  type: card
+                  enabled: true
+                  whitelist: NEVER
+                  created: '2025-01-15T10:30:00Z'
+                  updated: '2025-01-15T10:30:00Z'
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      deprecated: false
+      security:
+      - ApiKeyAuth: []
+    post:
+      tags:
+      - Charging Keys
+      summary: Create a charging key
+      description: 'Creates a new charging key for a specified user. Important notes:
+
+        - The key will be created in an enabled state by default
+
+        - Contract id, keyIdentifier and visualNumber must be provided.'
+      operationId: createUserChargingKey
+      parameters:
+      - name: userId
+        in: path
+        description: The unique identifier of the user who will own the new charging key
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChargingKeyPostRequest'
+            example:
+              name: My RFID key
+              keyIdentifier: 04A224B7C89280
+              contractId: DE-8PS-C0AD21B13-Q
+              visualNumber: DE*8PS*FR1RFK*4
+              enabled: true
+              whitelist: NEVER
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChargingKey'
+              example:
+                keyId: 0eb7732d-eb7a-418c
+                referenceId: DE*8PS*AD21B1*3
+                contractId: DE-8PS-C0AD21B13-Q
+                name: My RFID key
+                validFrom: '2022-01-24T11:25:54.210Z'
+                validTo: '2032-01-24T11:25:54.210Z'
+                type: card
+                enabled: true
+                whitelist: NEVER
+                created: '2025-01-15T10:30:00Z'
+                updated: '2025-01-15T10:30:00Z'
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      deprecated: false
+      security:
+      - ApiKeyAuth: []
+  /drive/v1/users/{userId}/charging-keys/plug-and-charge:
+    post:
+      tags:
+      - Charging Keys
+      summary: Create a Plug&Charge key
+      description: 'Creates a Plug&Charge charging key for a user. The key enables
+
+        roaming authorization at PnC-capable charging stations.'
+      operationId: createPncChargingKey
+      parameters:
+      - name: userId
+        in: path
+        description: The unique identifier of the user who will own the new Plug&Charge key
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Plug&Charge key creation request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChargingKeyPlugAndChargePostRequest'
+            example:
+              pcid: WDBRF61J21F123456
+              contractId: DE-8PS-C0AD21B13-Q
+        required: true
+      responses:
+        '200':
+          description: Plug&Charge key created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChargingKeyPlugAndChargePostResponse'
+              example:
+                contractId: DE-8PS-C0AD21B13-Q
+                pcid: WDBRF61J21F123456
+                keyId: DE-8PS-C0AD21B13-Q
+        '400':
+          description: 'Invalid request. Possible causes: PCID or contractId syntactically incorrect, contractId prefix not allowed for organization or Plug&Charge feature not enabled.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                fields:
+                - name: pcid
+                  message: PCID must be 17-18 alphanumeric characters
+                  rejectedValue: invalid
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '409':
+          description: A charging key for this EMAID already exists (if EMAID-sharing is not allowed for the organization).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: A charging key for this EMAID already exists
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Internal server error
+      deprecated: false
+      security:
+      - ApiKeyAuth: []
+  /drive/v1/charging-keys/reservations:
+    post:
+      tags:
+      - Charging Keys
+      summary: Reserve a charging key
+      description: Create connection between uid (physical chip id) and visualNumber (called later 'referenceId'), so that the latter can be used for activation.
+      operationId: createChargingKeyReservation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChargingKeyReservationsRequest'
+            example:
+              amount: 5
+              countryCode: DE
+              products:
+              - RFID_CARD
+              userId: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+              language: en
+        required: true
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      deprecated: false
+      security:
+      - ApiKeyAuth: []
+components:
+  schemas:
+    ChargingKeyPatchRequest:
+      title: ChargingKeyPatchRequest
+      type: object
+      properties:
+        name:
+          type: string
+          description: Display name assigned to the charging key.
+        enabled:
+          type: boolean
+          description: Changing to the value that the key already has will result in OK response.
+        whitelist:
+          $ref: '#/components/schemas/DriveApiChargingKeyWhitelistType'
+          description: 'Defines whether the CPO may allow a session for this charging key when it cannot get a response from the EMP, or must always rely on realtime authorization from the EMP. Possible values: ALLOWED_OFFLINE, NEVER.'
+          example: ALLOWED_OFFLINE
+      description: Request payload to update mutable charging key attributes.
+    DriveApiChargingKeyWhitelistType:
+      type: string
+      enum:
+      - ALLOWED_OFFLINE
+      - NEVER
+      description: 'Defines when authorization of a charging key by the CPO is allowed.
+
+        ALLOWED_OFFLINE: CPO should use realtime authorization. But when the CPO cannot get a response from the eMSP, the CPO shall allow the charging key to be used.
+
+        NEVER: Only realtime authorization is allowed. CPO shall always send a realtime authorization for any use of this charging key to the MSP.'
+    ChargingKeyPostRequest:
+      type: object
+      required:
+      - keyIdentifier
+      - contractId
+      - visualNumber
+      properties:
+        name:
+          type: string
+          example: SE6F1K2C3
+          description: Name of the Charging key
+        keyIdentifier:
+          type: string
+          example: e0e03336
+          description: Charging key identifier in hexadecimal, little-endian format with usually 8 or 14 characters.
+        contractId:
+          type: string
+          example: DE-9FS-C045DS363-E
+          description: Charging key contract id
+        visualNumber:
+          type: string
+          example: DE-9FS-C045DS363-E
+          description: Identifier printed on the physical key
+        enabled:
+          type: boolean
+          example: true
+          description: Indicates if the new charging key should be enabled or disabled.
+          default: true
+        whitelist:
+          $ref: '#/components/schemas/DriveApiChargingKeyWhitelistType'
+          description: 'Defines whether the CPO may allow a session for this charging key when it cannot get a response from the EMP, or must always rely on realtime authorization from the EMP. Possible values: ALLOWED_OFFLINE, NEVER.'
+          example: NEVER
+      description: Request payload to create a new charging key for a user.
+    ChargingKeyPlugAndChargePostResponse:
+      type: object
+      required:
+      - contractId
+      - pcid
+      - keyId
+      properties:
+        contractId:
+          type: string
+          description: in EMA-ID format, must correspond to the Plug&Charge contract certificate.
+        pcid:
+          type: string
+          description: Plug&Charge vehicle identifier (PCID). Is also used as referenceId of the charging key.
+        keyId:
+          type: string
+          example: DE-8PS-CT4UN7OZ3-2
+          description: Plug&Charge keys use the contractId (in EMA-ID format) as the keyIdentifier used for referencing in other endpoints
+      description: Result payload after registering a Plug&Charge contract.
+    ChargingKeyReservationsRequest:
+      type: object
+      required:
+      - uid
+      - visualNumber
+      properties:
+        uid:
+          type: string
+          example: e0e03306
+          description: Physical chip id. Must be in hexadecimal, little endian format
+        visualNumber:
+          type: string
+          description: Human-readable identifier written on the rfid card or tag
+          example: DE*8PS*FR1RFK*4
+        validFrom:
+          type: string
+          format: date-time
+          example: '2022-01-24T11:25:54.210Z'
+          description: default - current date
+        validTo:
+          type: string
+          format: date-time
+          example: '2032-01-24T11:25:54.210Z'
+          description: default - 10 years from 'validFrom' date
+        type:
+          type: string
+          enum:
+          - CARD
+          - TAG
+          default: CARD
+          description: this value is just for reference, it has no practical implications
+          example: CARD
+      description: Request payload to reserve charging key identifiers before activation.
+    ChargingKeyPlugAndChargePostRequest:
+      title: ChargingKeyPlugAndChargePostRequest
+      type: object
+      required:
+      - pcid
+      properties:
+        pcid:
+          type: string
+          example: VW123456789ABCDEFG
+          description: identifies the vehicle and must correspond to the provisioning certificate
+        contractId:
+          type: string
+          example: DE-8PS-CT4UN7OZ3-2
+          description: Identifies the charging contract and is only accepted in EMA-ID format. Must correspond to the Plug and Charge contract certificate.
+      description: Request payload to register a plug-and-charge contract identifier.
+    ChargingKeyActivateRequest:
+      type: object
+      properties:
+        whitelist:
+          $ref: '#/components/schemas/DriveApiChargingKeyWhitelistType'
+          description: 'Defines whether the CPO may allow a session for this charging key when it cannot get a response from the EMP, or must always rely on realtime authorization from the EMP. Possible values: ALLOWED_OFFLINE, NEVER.'
+          example: NEVER
+      description: Optional request payload to activate a charging key.
+    InvalidRequestErrorResponse:
+      title: InvalidRequestErrorResponse
+      type: object
+      required:
+      - message
+      - fields
+      properties:
+        message:
+          type: string
+        fields:
+          type: array
+          items:
+            title: InvalidField
+            type: object
+            required:
+            - name
+            - message
+            - rejectedValue
+            properties:
+              name:
+                type: string
+              message:
+                type: string
+                example: UserId is not correct
+              rejectedValue:
+                type: string
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      properties:
+        message:
+          type: string
+    ChargingKey:
+      type: object
+      required:
+      - keyId
+      - validFrom
+      - validTo
+      - type
+      - enabled
+      - created
+      - updated
+      properties:
+        keyId:
+          type: string
+          example: 0eb7732d-eb7a-418c
+          description: Identifier used for this charging key (`uid` in the case of a physical charging key)
+        referenceId:
+          type: string
+          example: DE*8PS*AD21B1*3
+          description: Visual number for RFID and virtual keys, Plug and Charge identifier (PCID )for plug_and_charge keys
+        contractId:
+          type: string
+          example: DE-8PS-C0AD21B13-Q
+          description: Identifier used in the context of roaming
+        name:
+          type: string
+          example: My RFID key
+          description: Key name (usually set by end-users to name their keys when they have multiple ones).
+        validFrom:
+          type: string
+          format: date-time
+          example: '2022-01-24T11:25:54.210Z'
+          description: UTC timestamp when the charging key becomes valid.
+        validTo:
+          type: string
+          format: date-time
+          example: '2032-01-24T11:25:54.210Z'
+          description: UTC timestamp when the charging key expires.
+        type:
+          type: string
+          example: card
+          description: 'Possible values include, but aren''t limited to: ''tag'', ''card'', ''virtual'', ''plug_and_charge''.'
+        enabled:
+          type: boolean
+          description: Indicates if the key can start a session or not
+        created:
+          type: string
+          format: date-time
+          description: UTC timestamp when the charging key was created.
+        updated:
+          type: string
+          format: date-time
+          description: UTC timestamp when the charging key was last updated.
+        whitelist:
+          $ref: '#/components/schemas/DriveApiChargingKeyWhitelistType'
+          description: 'Defines whether the CPO may allow a session for this charging key when it cannot get a response from the EMP, or must always rely on realtime authorization from the EMP. Possible values: ALLOWED_OFFLINE, NEVER.'
+          example: NEVER
+      description: Represents a charging key assigned to a user account.
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication

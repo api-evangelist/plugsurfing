@@ -1,0 +1,632 @@
+openapi: 3.2.0
+info:
+  title: Drive EMP Orders API
+  version: 1.0.0
+  description: The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network. It enables you to manage users, charging keys, search for charging locations, handle payments, and control charging sessions.
+servers:
+- url: https://{environment}.plugsurfing.com
+  variables:
+    environment:
+      enum:
+      - drive-api-stage
+      default: drive-api-stage
+      description: API environment - use drive-api-stage for testing and drive-api for production
+tags:
+- name: EMP Orders
+  description: E-Mobility Provider specific endpoints for managing orders
+paths:
+  /emp/v1/orders:
+    get:
+      summary: Fetch charging key orders
+      description: Returns a list of charging key orders belonging to supported organizations.
+      operationId: listEmpChargingKeyOrders
+      tags:
+      - EMP Orders
+      parameters:
+      - name: fromDate
+        in: query
+        description: Created orders from date
+        schema:
+          type: string
+          format: date
+          pattern: YYYY-MM-DD
+      - name: toDate
+        in: query
+        description: Created orders to date
+        schema:
+          type: string
+          format: date
+          pattern: YYYY-MM-DD
+      - name: status
+        in: query
+        description: Order status
+        schema:
+          $ref: '#/components/schemas/ChargingKeyOrderStatus'
+      - name: pageSize
+        in: query
+        description: Orders per page
+        schema:
+          type: integer
+          example: 100
+      - name: cursor
+        in: query
+        description: Cursor for pagination
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpChargingKeyOrdersResponse'
+              example:
+                products:
+                - id: aYnky297eG
+                  address:
+                    country: Austria
+                    additionalInformation: test test
+                    firstName: Frans
+                    lastName: Anderson
+                    city: Wistful Vista
+                    postalCode: '85960'
+                    companyName: Low area Corp.
+                    addressLine1: First Way 261b
+                    addressLine2: Suite 9
+                  quantity: 1
+                  language: en
+                  product:
+                    id: Am07b6Q7JZ
+                  created: '2023-06-26T10:00:00Z'
+                  organizationId: JoEl1xoP7r
+                  status: ORDER_PAID
+                  updated: '2023-06-26T12:00:00Z'
+                  printing:
+                    variables:
+                      driverName: Frans Anderson
+                    color: WHITE
+                cursor: DnF1ZXJ5VGhlbkZldGNoBQAAAAAACz-bFmYwRDVpbkhzUzNxaXMxU3JZV0dFNGcAAAAAAAs
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: An unexpected error occurred.
+      security:
+      - ApiKeyAuth: []
+    post:
+      summary: Create a fleet charging key order
+      description: Creates a charging key order for a fleet organization. One request creates one card order. The `printing` payload requirements come from product discovery and are validated by the fulfilment system.
+      operationId: createEmpChargingKeyOrder
+      tags:
+      - EMP Orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmpCreateChargingKeyOrderRequest'
+            example:
+              fleetId: fleet-123
+              productId: Nk375yz7Gw
+              address:
+                firstName: Jane
+                lastName: Doe
+                addressLine1: Example Street 1
+                addressLine2: Floor 2
+                postalCode: '00100'
+                city: Helsinki
+                country: FI
+                companyName: Example Ltd
+              printing:
+                driverName: Jane Doe
+                licensePlate: FI000AA
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpChargingKeyOrdersProduct'
+              example:
+                id: aYnky297eG
+                address:
+                  country: FI
+                  firstName: Jane
+                  lastName: Doe
+                  city: Helsinki
+                  postalCode: '00100'
+                  companyName: Example Ltd
+                  addressLine1: Example Street 1
+                  addressLine2: Floor 2
+                quantity: 1
+                language: en
+                product:
+                  id: Nk375yz7Gw
+                created: '2024-01-15T10:00:00Z'
+                organizationId: JoEl1xoP7r
+                status: ORDER_PAID
+                updated: '2024-01-15T10:00:00Z'
+                printing:
+                  variables:
+                    driverName: Jane Doe
+                    licensePlate: FI000AA
+        '400':
+          description: Bad Request. Returned when required fields are missing, the request body is malformed JSON, or the printing payload fails product validation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: 'Missing required field: productId'
+        '404':
+          description: Not Found. Returned when the fleetId does not exist or the productId is not recognised.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: An unexpected error occurred.
+      security:
+      - ApiKeyAuth: []
+  /emp/v1/orders/{orderId}/assign:
+    post:
+      summary: Mark an order as 'Assigned'
+      description: Marks an order as assigned. The request body is optional. Some orders require physical card details during assignment; for those orders, `keyIdentifier` and `referenceId` must be provided in the request body.
+      operationId: assignEmpChargingKeyOrder
+      tags:
+      - EMP Orders
+      parameters:
+      - name: orderId
+        in: path
+        description: orderId to be assigned
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Assigned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpChargingKeyOrdersProduct'
+              example:
+                id: aYnky297eG
+                address:
+                  country: Austria
+                  additionalInformation: test test
+                  firstName: Frans
+                  lastName: Anderson
+                  city: Wistful Vista
+                  postalCode: '85960'
+                  companyName: Low area Corp.
+                  addressLine1: First Way 261b
+                  addressLine2: Suite 9
+                quantity: 1
+                language: en
+                product:
+                  id: Am07b6Q7JZ
+                created: '2023-06-26T10:00:00Z'
+                organizationId: JoEl1xoP7r
+                status: ORDER_PAID
+                updated: '2023-06-26T12:00:00Z'
+        '400':
+          description: Bad Request. Returned when required card details are missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Missing or invalid card details.
+        '404':
+          description: Order is not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '409':
+          description: Conflict. Returned when the provided card details conflict with an existing card assignment.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Card details conflict with an existing assignment.
+        '500':
+          description: Internal Server Error. Returned for unexpected failures.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: An unexpected error occurred.
+      security:
+      - ApiKeyAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmpChargingKeyOrderAssignRequest'
+            example:
+              keyIdentifier: 0462D53C8ABAC0
+              referenceId: '1234567890123456'
+  /emp/v1/products:
+    get:
+      summary: List available products
+      description: Returns the products available. Each product may include a `printing.schema` field - a JSON Schema (Draft 2020-12) object that describes the printing payload your customers must supply when placing an order for that product. Use this schema to build dynamic forms, validate inputs client-side, or auto-generate UI components.
+      operationId: getEmpProducts
+      tags:
+      - EMP Orders
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpProductsResponse'
+              example:
+                products:
+                - id: Am07b6Q7JZ
+                  name: Standard EV Card
+                  description: Physical charging card for fleet drivers.
+                  printing:
+                    schema:
+                      $schema: https://json-schema.org/draft/2020-12/schema
+                      type: object
+                      required:
+                      - driverName
+                      - licensePlate
+                      additionalProperties: false
+                      properties:
+                        driverName:
+                          type: string
+                          description: Full name of the card holder to be printed on the card.
+                          minLength: 5
+                          maxLength: 50
+                        licensePlate:
+                          type: string
+                          description: Vehicle license plate to be printed on the card.
+                          minLength: 4
+                          maxLength: 6
+                - id: Bx19dR2mKL
+                  name: Fleet Access Card
+                  description: Charging card for shared fleet access.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: An unexpected error occurred.
+      security:
+      - ApiKeyAuth: []
+components:
+  schemas:
+    ChargingKeyOrderAddressRequest:
+      title: ChargingKeyOrderAddressRequest
+      type: object
+      required:
+      - addressLine1
+      - postalCode
+      - city
+      - country
+      properties:
+        companyName:
+          type: string
+          maxLength: 130
+          example: Plugsurfing
+          description: Company name for business delivery addresses.
+        firstName:
+          type: string
+          maxLength: 130
+          example: John
+          description: Recipient first name.
+        lastName:
+          type: string
+          maxLength: 130
+          example: Drive
+          description: Recipient last name.
+        addressLine1:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Automation road 1
+          description: Primary street address line.
+        addressLine2:
+          type: string
+          example: Park spot 1
+          description: Secondary address line such as apartment or suite.
+        postalCode:
+          type: string
+          minLength: 1
+          maxLength: 10
+          example: EV1234
+          description: Postal or ZIP code.
+        city:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: Spark City
+          description: City name.
+        country:
+          type: string
+          minLength: 1
+          maxLength: 41
+          example: SE
+          description: Country code in ISO 3166-1 alpha-2 format.
+      description: Shipping address used when placing a charging key order.
+    EmpProductsResponse:
+      type: object
+      required:
+      - products
+      properties:
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmpProduct'
+          description: List of products available.
+      description: Response containing the list of products available for ordering.
+    EmpChargingKeyOrdersProduct:
+      required:
+      - id
+      - address
+      - quantity
+      - language
+      - product
+      - created
+      - organizationId
+      - status
+      - updated
+      type: object
+      properties:
+        id:
+          type: string
+          example: aYnky297eG
+          description: Unique identifier of the order product.
+        address:
+          $ref: '#/components/schemas/EmpChargingKeyOrdersProductAddress'
+          description: Delivery address for this order product.
+        quantity:
+          type: number
+          example: 1
+          description: Number of product units ordered.
+        language:
+          type: string
+          example: en
+          description: Language used for order communication.
+        product:
+          type: object
+          properties:
+            id:
+              type: string
+              example: Am07b6Q7JZ
+          description: Ordered product code or type.
+        created:
+          type: string
+          format: date-time
+          example: '2023-06-26T10:00:00Z'
+          description: UTC timestamp when this product order was created.
+        organizationId:
+          type: string
+          example: JoEl1xoP7r
+          description: Identifier of the organization that placed the order.
+        status:
+          $ref: '#/components/schemas/ChargingKeyOrderStatus'
+          description: Current processing status of the order product.
+        updated:
+          type: string
+          format: date-time
+          example: '2023-06-26T12:00:00Z'
+          description: UTC timestamp when this product order was last updated.
+        printing:
+          type: object
+          description: Printing details associated with the order product. Present only for orders that include physical card customization.
+          required:
+          - variables
+          properties:
+            variables:
+              type: object
+              additionalProperties:
+                type: string
+              description: Print-specific values associated with the order, for example values used on a customized physical card.
+            color:
+              type:
+              - string
+              - 'null'
+              enum:
+              - BLACK
+              - WHITE
+              - null
+              description: Card template color agreed for the product/order. It is not selected by the end customer while placing the order.
+      description: EMP charging key order product details.
+    ChargingKeyOrderStatus:
+      type: string
+      description: ORDER_PAID -> orders ready to be fulfilled
+      enum:
+      - WAITING_FOR_ORDER
+      - ORDER_PLACED
+      - ORDER_PROCESSING
+      - ORDER_ASSIGNED
+      - ORDER_PAID
+      - ORDER_CANCELLED
+      - ORDER_CANCELLING
+      - ORDER_PAYMENT_FAILED
+      - ORDER_REFUND_FAILED
+      - ORDER_WAITING_REFUND
+      - ORDER_REFUNDED
+      - PAYMENT_ONGOING
+      - ORDER_FILLED
+      - ORDER_PAYED
+      - PREPARE_RECEIPT
+      - ORDER_PAYED_WITHOUT_RECEIPT
+      example: ORDER_PAID
+    EmpProductPrinting:
+      type: object
+      description: Printing requirements for this product. Use the `schema` field to understand which variables must be provided in the `printing` payload when placing an order for this product.
+      required:
+      - schema
+      properties:
+        schema:
+          type: object
+          additionalProperties: true
+          description: A JSON Schema (Draft 2020-12) object that describes the shape and validation rules of the `printing` payload expected when ordering this product. Use this schema to build, validate, and auto-generate forms for the printing data your customers must supply.
+          example:
+            $schema: https://json-schema.org/draft/2020-12/schema
+            type: object
+            required:
+            - driverName
+            - licensePlate
+            additionalProperties: false
+            properties:
+              driverName:
+                type: string
+                description: Full name of the card holder to be printed on the card.
+                minLength: 5
+                maxLength: 50
+              licensePlate:
+                type: string
+                description: Vehicle license plate to be printed on the card.
+                minLength: 4
+                maxLength: 6
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      properties:
+        message:
+          type: string
+    EmpProduct:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          example: Am07b6Q7JZ
+          description: Unique identifier of the product.
+        name:
+          type: string
+          example: Standard EV Card
+          description: Human-readable name of the product.
+        description:
+          type: string
+          example: Physical charging card for fleet drivers.
+          description: Human-readable product description, when available.
+        printing:
+          $ref: '#/components/schemas/EmpProductPrinting'
+          description: Present when the product requires printing details when placing an order. Omitted for products that do not require a `printing` payload.
+      description: A product available to order.
+    EmpChargingKeyOrderAssignRequest:
+      type: object
+      required:
+      - keyIdentifier
+      - referenceId
+      properties:
+        keyIdentifier:
+          type: string
+          description: RFID UID of the physical card, in the same format that a charging station would read from the card.
+        referenceId:
+          type: string
+          description: Number printed on the physical card itself, also known as the visual number.
+      description: Optional request body for assigning an order. Required only when the order requires printing.
+    EmpChargingKeyOrdersResponse:
+      required:
+      - products
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmpChargingKeyOrdersProduct'
+          description: Products returned for the current page.
+        cursor:
+          type: string
+          example: DnF1ZXJ5VGhlbkZldGNoBQAAAAAACz-bFmYwRDVpbkhzUzNxaXMxU3JZV0dFNGcAAAAAAAs
+          description: Cursor to request the next page of results.
+      description: Paginated list of EMP charging key order products.
+    EmpCreateChargingKeyOrderRequest:
+      type: object
+      required:
+      - fleetId
+      - productId
+      - address
+      properties:
+        fleetId:
+          type: string
+          example: fleet-123
+          description: Customer-provided fleet identifier. Must match the value used when the fleet was created via `POST /emp/v1/fleets`.
+        productId:
+          type: string
+          example: Nk375yz7Gw
+          description: Encoded public product ID as returned by `GET /emp/v1/products`.
+        address:
+          $ref: '#/components/schemas/ChargingKeyOrderAddressRequest'
+          description: Delivery address for the order.
+        printing:
+          type: object
+          additionalProperties: true
+          description: Optional printing payload. Requirements are product-specific — use the `printing.schema` from product discovery to build and validate this object before submitting. Drive API forwards this payload unchanged to the fulfilment system.
+          example:
+            driverName: Jane Doe
+            licensePlate: FI000AA
+      description: Request body for creating a fleet charging key order.
+    EmpChargingKeyOrdersProductAddress:
+      type: object
+      properties:
+        country:
+          type: string
+          example: Austria
+          description: Country code in ISO 3166-1 alpha-2 format.
+        additionalInformation:
+          type: string
+          example: test test
+          description: Additional delivery instructions.
+        firstName:
+          type: string
+          example: Frans
+          description: Recipient first name.
+        lastName:
+          type: string
+          example: Anderson
+          description: Recipient last name.
+        city:
+          type: string
+          example: Wistful Vista
+          description: City name.
+        postalCode:
+          type: string
+          example: '85960'
+          description: Postal or ZIP code.
+        companyName:
+          type: string
+          example: Low area Corp.
+          description: Company name for business delivery addresses.
+        addressLine1:
+          type: string
+          example: First Way 261b
+          description: Primary street address line.
+        addressLine2:
+          type: string
+          example: Suite 9
+          description: Secondary address line such as apartment or suite.
+      description: Delivery address for an EMP charging key order product.
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication

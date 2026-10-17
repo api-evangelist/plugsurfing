@@ -1,0 +1,658 @@
+openapi: 3.2.0
+info:
+  title: Drive API
+  version: 1.0.0
+  description: The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network. It enables you to manage users, charging keys, search for charging locations, handle payments, and control charging sessions.
+servers:
+- url: https://{environment}.plugsurfing.com
+  variables:
+    environment:
+      enum:
+      - drive-api-stage
+      default: drive-api-stage
+      description: API environment - use drive-api-stage for testing and drive-api for production
+tags:
+- name: Drive API
+paths: {}
+webhooks:
+  Session Events:
+    post:
+      summary: Receive Session Event
+      description: Plugsurfing sends session event notifications to the configured webhook URL. Known event names are SESSION_STARTED, SESSION_STOPPED, SESSION_COMPLETE, SESSION_START_FAILED, SESSION_STOP_FAILED, and SESSION_FEE_INCURRING. New event names may be introduced without prior notice. Events are sent once and the receiver response is not used for retries.
+      operationId: sessionEventsWebhook
+      parameters:
+      - name: X-HMAC-SHA512-Signature
+        in: header
+        required: false
+        description: Base64 encoded HMAC SHA-512 signature of the raw request body. Present when HMAC signing is configured.
+        schema:
+          type: string
+      - name: X-HMAC-SHA512-SignedAt
+        in: header
+        required: false
+        description: RFC 3339 timestamp for when the payload was signed. Present when HMAC signing is configured.
+        schema:
+          type: string
+          format: date-time
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionEventWebhookEnvelope'
+            examples:
+              sessionStarted:
+                summary: SESSION_STARTED (user session)
+                value:
+                  event: SESSION_STARTED
+                  payload:
+                    userId: usr_123
+                    sessionId: L60XMxWy0oP
+                    timestamp: '2025-06-12T10:56:51Z'
+              sessionStopped:
+                summary: SESSION_STOPPED (fleet session)
+                value:
+                  event: SESSION_STOPPED
+                  payload:
+                    fleetId: fleet_42
+                    keyIdentifier: e0e03336
+                    visualNumber: DE*8PS*FR1RFK*4
+                    contractId: DE-8PS-C0AD21B13-Q
+                    sessionId: L60XMxWy0oP
+                    timestamp: '2025-06-12T11:31:02Z'
+              sessionComplete:
+                summary: SESSION_COMPLETE (user session)
+                value:
+                  event: SESSION_COMPLETE
+                  payload:
+                    userId: usr_123
+                    sessionId: L60XMxWy0oP
+                    timestamp: '2025-06-12T11:41:22Z'
+              sessionStartFailed:
+                summary: SESSION_START_FAILED (user session)
+                value:
+                  event: SESSION_START_FAILED
+                  payload:
+                    userId: usr_123
+                    sessionId: L60XMxWy0oP
+                    timestamp: '2025-06-12T10:56:57Z'
+              sessionStopFailed:
+                summary: SESSION_STOP_FAILED (fleet session)
+                value:
+                  event: SESSION_STOP_FAILED
+                  payload:
+                    fleetId: fleet_42
+                    keyIdentifier: e0e03336
+                    contractId: DE-8PS-C0AD21B13-Q
+                    sessionId: L60XMxWy0oP
+                    timestamp: '2025-06-12T11:29:10Z'
+              sessionFeeIncurring:
+                summary: SESSION_FEE_INCURRING
+                value:
+                  event: SESSION_FEE_INCURRING
+                  payload:
+                    userId: usr_123
+                    sessionId: L60XMxWy0oP
+                    timestamp: '2025-06-12T11:12:48Z'
+                    feeWillApplyFrom: '2025-06-12T11:22:48Z'
+                    feeType: BLOCKING
+      responses:
+        '200':
+          description: Webhook received.
+        '400':
+          description: Invalid payload.
+        '500':
+          description: Receiver failed to process the webhook.
+      tags:
+      - Drive API
+  CDR Forwarding:
+    post:
+      summary: Receive Forwarded CDR
+      description: Plugsurfing sends Charging Detail Records (CDRs) when you are set to clear the sessions. If a request does not receive a 200 response (or times out), Plugsurfing retries nightly for up to 7 days using the same requestId for idempotency.
+      operationId: cdrForwardingWebhook
+      parameters:
+      - name: X-HMAC-SHA512-Signature
+        in: header
+        required: false
+        description: Base64 encoded HMAC SHA-512 signature of the raw request body. Present when HMAC signing is configured.
+        schema:
+          type: string
+      - name: X-HMAC-SHA512-SignedAt
+        in: header
+        required: false
+        description: RFC 3339 timestamp for when the payload was signed. Present when HMAC signing is configured.
+        schema:
+          type: string
+          format: date-time
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CdrWebhookRequest'
+            examples:
+              cdrUserPayer:
+                summary: CDR with user payer
+                value:
+                  requestId: req_9f8ca42f
+                  timestamp: '2025-06-12T12:00:00Z'
+                  payer:
+                    type: USER
+                    id: usr_123
+                    chargingKey:
+                      uid: NR9348593
+                      contractId: DE-8PS-C1Z3R5KZI-8
+                      visualNumber: 2340-1254-6543-5655
+                      identificationType: rfid
+                      type: CHARGING_KEY
+                  type: SESSION
+                  item:
+                    sessionId: BpK64y1z1QA
+                    externalSessionId: '89111162'
+                    startMethod: REMOTE
+                    startTime: '2025-06-12T10:30:00Z'
+                    stopTime: '2025-06-12T11:20:00Z'
+                    energyConsumedInWh: 18500
+                    totalParkingTimeInSeconds: 600
+                    empCost:
+                      totalCostMinorUnitsInclVat: 2128
+                      totalCostMinorUnitsExclVat: 1702
+                      currency: NOK
+                      priceIncludesVat: true
+                      costSegments:
+                      - type: ENERGY
+                        quantity: 18.5
+                        vatRate: 25
+                        pricePerUnit: 1.15
+                        pricePerUnitMinorUnitsInclVat: 115
+                        segmentCostMinorUnitsExclVat: 1702
+                        segmentCostMinorUnitsInclVat: 2128
+                        unit:
+                          type: kWh
+                          amount: 1
+                        from: '2025-06-12T10:30:00Z'
+                        to: '2025-06-12T11:20:00Z'
+                    cpoClaimedCost:
+                      totalCostMinorUnitsInclVat: 2000
+                      totalCostMinorUnitsExclVat: 1600
+                      currency: NOK
+                      priceIncludesVat: true
+                      costSegments:
+                      - type: ENERGY
+                        quantity: 18.5
+                        vatRate: 25
+                        pricePerUnit: 1.08
+                        pricePerUnitMinorUnitsInclVat: 108
+                        segmentCostMinorUnitsExclVat: 1600
+                        segmentCostMinorUnitsInclVat: 2000
+                        unit:
+                          type: kWh
+                          amount: 1
+                        from: '2025-06-12T10:30:00Z'
+                        to: '2025-06-12T11:20:00Z'
+                    location:
+                      id: LOC-1001
+                      evseId: IT_TSL_EMIL*0001
+                      cpoId: DE*ABC
+                      cpoName: Example CPO
+                      address: Charging Road 1
+                      city: Berlin
+                      postalCode: '10115'
+                      country: DEU
+                      powerType: DC
+                      private: false
+                      coordinates:
+                        latitude: 52.520008
+                        longitude: 13.404954
+              cdrChargingKeyPayer:
+                summary: CDR with charging key payer
+                value:
+                  requestId: req_7a22be9d
+                  timestamp: '2025-06-12T12:15:00Z'
+                  payer:
+                    type: CHARGING_KEY
+                    uid: NR9348593
+                    visualNumber: 2340-1254-6543-5655
+                    contractId: DE-8PS-C1Z3R5KZI-8
+                    identificationType: virtual
+                  type: SESSION
+                  item:
+                    sessionId: ApK11r8u9Qa
+                    startMethod: LOCAL
+                    startTime: '2025-06-12T09:00:00Z'
+                    stopTime: '2025-06-12T09:45:00Z'
+                    energyConsumedInWh: 12200
+                    empCost:
+                      totalCostMinorUnitsInclVat: 1800
+                      totalCostMinorUnitsExclVat: 1440
+                      currency: EUR
+                      priceIncludesVat: true
+                      costSegments:
+                      - type: FLAT
+                        quantity: 1
+                        vatRate: 25
+                        pricePerUnit: 18
+                        pricePerUnitMinorUnitsInclVat: 1800
+                        segmentCostMinorUnitsExclVat: 1440
+                        segmentCostMinorUnitsInclVat: 1800
+                        unit:
+                          type: session
+                          amount: 1
+                    cpoClaimedCost:
+                      totalCostMinorUnitsInclVat: 1700
+                      totalCostMinorUnitsExclVat: 1360
+                      currency: EUR
+                      priceIncludesVat: true
+                      costSegments:
+                      - type: FLAT
+                        quantity: 1
+                        vatRate: 25
+                        pricePerUnit: 17
+                        pricePerUnitMinorUnitsInclVat: 1700
+                        segmentCostMinorUnitsExclVat: 1360
+                        segmentCostMinorUnitsInclVat: 1700
+                        unit:
+                          type: session
+                          amount: 1
+                    location:
+                      id: LOC-2020
+                      evseId: SE_ABC_001
+                      cpoId: SE*ABC
+                      cpoName: Nordic CPO
+                      address: Sveavagen 10
+                      city: Stockholm
+                      country: SWE
+                      powerType: AC_3_PHASE
+                      private: false
+                      coordinates:
+                        latitude: 59.334591
+                        longitude: 18.06324
+                    homeCharging:
+                      exemptVat: false
+      responses:
+        '200':
+          description: CDR accepted.
+        '400':
+          description: Invalid CDR payload.
+        '403':
+          description: Authorization failed.
+        '500':
+          description: Receiver failed to process the CDR.
+      tags:
+      - Drive API
+components:
+  schemas:
+    SessionEventWebhookEnvelope:
+      type: object
+      required:
+      - event
+      - payload
+      properties:
+        event:
+          type: string
+          description: 'Event name. Known values: SESSION_STARTED, SESSION_STOPPED, SESSION_COMPLETE, SESSION_START_FAILED, SESSION_STOP_FAILED, SESSION_FEE_INCURRING. New values may be introduced without prior notice.'
+        payload:
+          $ref: '#/components/schemas/SessionEventWebhookPayload'
+      example:
+        event: SESSION_STARTED
+        payload:
+          userId: user1
+          sessionId: L60XMxWy0oP
+          timestamp: '2025-06-12T10:56:51Z'
+    CdrWebhookGeoCoordinates:
+      type: object
+      required:
+      - latitude
+      - longitude
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+    CdrWebhookUnit:
+      type: object
+      required:
+      - type
+      - amount
+      properties:
+        type:
+          type: string
+          enum:
+          - session
+          - kWh
+          - Wh
+          - min
+          - h
+        amount:
+          type: integer
+    CdrWebhookLocation:
+      type: object
+      required:
+      - id
+      - evseId
+      - cpoId
+      - cpoName
+      - address
+      - city
+      - country
+      - powerType
+      - private
+      - coordinates
+      properties:
+        id:
+          type: string
+        evseId:
+          type: string
+        cpoId:
+          type: string
+        cpoName:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        postalCode:
+          type: string
+        country:
+          type: string
+          description: ISO 3166-1 alpha-3 country code.
+        powerType:
+          type: string
+          enum:
+          - AC
+          - DC
+          - AC_1_PHASE
+          - AC_3_PHASE
+        private:
+          type: boolean
+        coordinates:
+          $ref: '#/components/schemas/CdrWebhookGeoCoordinates'
+    CdrWebhookCostSegment:
+      type: object
+      required:
+      - type
+      - quantity
+      - vatRate
+      - pricePerUnit
+      - pricePerUnitMinorUnitsInclVat
+      - segmentCostMinorUnitsExclVat
+      - segmentCostMinorUnitsInclVat
+      - unit
+      properties:
+        type:
+          type: string
+          enum:
+          - TIME
+          - ENERGY
+          - FLAT
+          - CAPPED
+          - PARKING_TIME
+          - CONGESTION_TIME
+        quantity:
+          type: number
+          format: double
+        vatRate:
+          type: number
+          format: double
+        pricePerUnit:
+          type: number
+          format: double
+        pricePerUnitMinorUnitsInclVat:
+          type: integer
+          format: int64
+        segmentCostMinorUnitsExclVat:
+          type: integer
+          format: int64
+        segmentCostMinorUnitsInclVat:
+          type: integer
+          format: int64
+        unit:
+          $ref: '#/components/schemas/CdrWebhookUnit'
+        from:
+          type: string
+          format: date-time
+        to:
+          type: string
+          format: date-time
+    FleetSessionEventWebhookPayload:
+      type: object
+      required:
+      - keyIdentifier
+      - sessionId
+      - timestamp
+      properties:
+        keyIdentifier:
+          type: string
+          description: Charging key identifier used for the fleet session.
+        fleetId:
+          type: string
+          description: External fleet id (usually present for fleet sessions).
+        visualNumber:
+          type: string
+          description: Visual number from the charging key when available.
+        contractId:
+          type: string
+          description: Contract id from the charging key when available.
+        sessionId:
+          type: string
+          description: Plugsurfing encoded session identifier.
+        timestamp:
+          type: string
+          format: date-time
+          description: Event timestamp in UTC.
+        feeWillApplyFrom:
+          type: string
+          format: date-time
+          description: Present for SESSION_FEE_INCURRING.
+        feeType:
+          type: string
+          enum:
+          - BLOCKING
+          - CONGESTING
+          - PARKING
+          description: Present for SESSION_FEE_INCURRING when applicable.
+    CdrWebhookIdentificationType:
+      type: string
+      enum:
+      - rfid
+      - virtual
+      - plug_and_charge
+    CdrWebhookPayer:
+      oneOf:
+      - $ref: '#/components/schemas/CdrWebhookUserPayer'
+      - $ref: '#/components/schemas/CdrWebhookChargingKeyPayer'
+      discriminator:
+        propertyName: type
+    CdrWebhookChargingKeyPayer:
+      type: object
+      required:
+      - type
+      - uid
+      - contractId
+      - identificationType
+      properties:
+        type:
+          type: string
+          enum:
+          - CHARGING_KEY
+        uid:
+          type: string
+        visualNumber:
+          type: string
+        contractId:
+          type: string
+        identificationType:
+          $ref: '#/components/schemas/CdrWebhookIdentificationType'
+    CdrWebhookHomeCharging:
+      type: object
+      required:
+      - exemptVat
+      properties:
+        exemptVat:
+          type: boolean
+    SessionEventWebhookPayload:
+      description: 'Session event payload. Exactly one identity variant is present: user session payload or fleet session payload.'
+      oneOf:
+      - $ref: '#/components/schemas/UserSessionEventWebhookPayload'
+      - $ref: '#/components/schemas/FleetSessionEventWebhookPayload'
+    CdrWebhookUserPayer:
+      type: object
+      required:
+      - type
+      - id
+      - chargingKey
+      properties:
+        type:
+          type: string
+          enum:
+          - USER
+        id:
+          type: string
+        chargingKey:
+          $ref: '#/components/schemas/CdrWebhookUserChargingKey'
+    CdrWebhookCost:
+      type: object
+      required:
+      - totalCostMinorUnitsInclVat
+      - totalCostMinorUnitsExclVat
+      - currency
+      - priceIncludesVat
+      - costSegments
+      properties:
+        totalCostMinorUnitsInclVat:
+          type: integer
+          format: int64
+        totalCostMinorUnitsExclVat:
+          type: integer
+          format: int64
+        currency:
+          type: string
+          example: EUR
+        priceIncludesVat:
+          type: boolean
+        costSegments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CdrWebhookCostSegment'
+    CdrWebhookUserChargingKey:
+      type: object
+      required:
+      - uid
+      - contractId
+      - identificationType
+      properties:
+        uid:
+          type: string
+        visualNumber:
+          type: string
+        contractId:
+          type: string
+        identificationType:
+          $ref: '#/components/schemas/CdrWebhookIdentificationType'
+        type:
+          type: string
+          enum:
+          - CHARGING_KEY
+    CdrWebhookRequest:
+      type: object
+      required:
+      - requestId
+      - timestamp
+      - payer
+      - type
+      - item
+      properties:
+        requestId:
+          type: string
+          description: Unique identifier for the webhook delivery. The same requestId is reused on retries.
+        timestamp:
+          type: string
+          format: date-time
+          description: Webhook creation timestamp in UTC.
+        payer:
+          $ref: '#/components/schemas/CdrWebhookPayer'
+        type:
+          type: string
+          enum:
+          - SESSION
+        item:
+          $ref: '#/components/schemas/CdrWebhookSessionItem'
+    UserSessionEventWebhookPayload:
+      type: object
+      required:
+      - userId
+      - sessionId
+      - timestamp
+      properties:
+        userId:
+          type: string
+          description: External user id.
+        sessionId:
+          type: string
+          description: Plugsurfing encoded session identifier.
+        timestamp:
+          type: string
+          format: date-time
+          description: Event timestamp in UTC.
+        feeWillApplyFrom:
+          type: string
+          format: date-time
+          description: Present for SESSION_FEE_INCURRING.
+        feeType:
+          type: string
+          enum:
+          - BLOCKING
+          - CONGESTING
+          - PARKING
+          description: Present for SESSION_FEE_INCURRING when applicable.
+    CdrWebhookSessionItem:
+      type: object
+      required:
+      - sessionId
+      - startTime
+      - stopTime
+      - energyConsumedInWh
+      - empCost
+      - cpoClaimedCost
+      - location
+      - startMethod
+      properties:
+        sessionId:
+          type: string
+        externalSessionId:
+          type: string
+        startMethod:
+          type: string
+          enum:
+          - REMOTE
+          - LOCAL
+          description: 'Indicates how the charging session was started. REMOTE: initiated by a backend/app command. LOCAL: initiated directly at the charge point (e.g. RFID or Plug&Charge).'
+          example: REMOTE
+        startTime:
+          type: string
+          format: date-time
+        stopTime:
+          type: string
+          format: date-time
+        energyConsumedInWh:
+          type: integer
+          format: int64
+        totalParkingTimeInSeconds:
+          type: integer
+          format: int64
+        empCost:
+          $ref: '#/components/schemas/CdrWebhookCost'
+        cpoClaimedCost:
+          $ref: '#/components/schemas/CdrWebhookCost'
+        location:
+          $ref: '#/components/schemas/CdrWebhookLocation'
+        homeCharging:
+          $ref: '#/components/schemas/CdrWebhookHomeCharging'
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication

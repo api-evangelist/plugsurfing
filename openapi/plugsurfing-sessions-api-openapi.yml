@@ -1,0 +1,658 @@
+openapi: 3.2.0
+info:
+  title: Drive Sessions API
+  version: 1.0.0
+  description: The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network. It enables you to manage users, charging keys, search for charging locations, handle payments, and control charging sessions.
+servers:
+- url: https://{environment}.plugsurfing.com
+  variables:
+    environment:
+      enum:
+      - drive-api-stage
+      default: drive-api-stage
+      description: API environment - use drive-api-stage for testing and drive-api for production
+tags:
+- name: Sessions
+  description: Access and manage charging session data including history, status, and detailed session information
+paths:
+  /drive/v1/users/{userId}/sessions/history:
+    post:
+      tags:
+      - Sessions
+      summary: Get charging session history
+      description: 'Retrieves the charging session history for a specific user. The response includes detailed information about each session including:
+
+        - Session status and duration
+
+        - Energy consumption
+
+        - Cost and payment details
+
+        - Charging location information
+
+
+        The results can be filtered by:
+
+        - Session status
+
+        - Specific charging key
+
+        - Date range
+
+
+        Pagination is supported through the cursor parameter.'
+      operationId: listSessions
+      parameters:
+      - name: userId
+        in: path
+        description: The unique identifier of the user whose session history should be retrieved
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionsHistoryRequest'
+            example:
+              fromDate: '2025-01-01'
+              toDate: '2025-01-31'
+              limit: 20
+              page: 1
+              sortBy: startTime
+              sortDirection: DESC
+        required: false
+      responses:
+        '200':
+          description: Save the cursor to access next pages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionsHistoryResponse'
+              example:
+                sessions: []
+                total: 0
+                hasMore: false
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /drive/v1/users/{userId}/sessions/{sessionId}:
+    get:
+      tags:
+      - Sessions
+      summary: Get details of a specific charging session
+      description: 'Retrieves detailed information about a specific charging session. This includes:
+
+        - Session status (completed or in-progress)
+
+        - Energy consumption and duration
+
+        - Cost and payment status
+
+        - Charging location details
+
+        - Charging key used
+
+
+        This endpoint can be used to track both completed sessions and monitor ongoing ones.'
+      operationId: getSessionById
+      parameters:
+      - name: userId
+        in: path
+        description: The unique identifier of the user who owns the charging session
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      - name: sessionId
+        in: path
+        description: The unique identifier of the charging session
+        required: true
+        example: AAdmD55q8Vz
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+              example:
+                balanceStatus: PROCESSING
+                sessionStatus: CREATED
+                charger:
+                  chargingStationName: Drive_API_Test1_Station1
+                  city: Solna
+                  connectorLabel: '1'
+                  evseId: SE*CND*EC1*1
+                  streetName: Rättarvägen
+                balanceAmountMinor: '-2160'
+                chargingKeyType: virtual
+                connectorId: O9UXK+YI5Q6i0FoI4qHwcA==
+                duration: PT28.913S
+                energy:
+                  unit: WH
+                  value: 57
+                paymentMethod: CREDIT_CARD
+                price:
+                  currencyCode: EUR
+                  minorExclVat: 2785
+                  minorInclVat: 1
+                  vat: '17.5'
+                receiptAvailable: true
+                sessionId: AAdmD55q8Vz
+                site: Drive_API_Test1
+                startTime: '2021-01-30T10:00:00.111111111Z'
+                transactions:
+                - paymentMethod: CREDIT_CARD
+                  paymentOutcome: CHARGE
+                  amount:
+                    currencyCode: EUR
+                    minorExclVat: 2785
+                    minorInclVat: 1
+                    vat: '17.5'
+                  time: '2021-01-30T10:00:00.111111111Z'
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User or session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /drive/v1/users/{userId}/sessions/{sessionId}/receipt:
+    get:
+      tags:
+      - Sessions
+      operationId: getSessionReceipt
+      summary: Get a session receipt by session id
+      description: Get session receipt. The response includes a time-limited URL to access the receipt. A new URL is required after expiration. Receipts are not available for sessions with a price of 0, and a 404 error will be returned if requested. The receipt will be in PDF format.
+      parameters:
+      - name: userId
+        in: path
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      - name: sessionId
+        in: path
+        required: true
+        example: AAdmD55q8Vz
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Receipt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+              example:
+                url: string
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: Receipt not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /drive/v1/users/{userId}/sessions/{sessionId}/payments/retry:
+    post:
+      tags:
+      - Sessions
+      summary: Retry session payment
+      operationId: retrySessionPayment
+      description: Use this endpoint to retry an unsuccessful session payment
+      parameters:
+      - name: userId
+        in: path
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      - name: sessionId
+        in: path
+        required: true
+        example: AAdmD55q8Vz
+        schema:
+          type: string
+      requestBody:
+        description: request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+            example:
+              paymentMethodId: STRIPE-7844364278189399
+              idempotencyKey: retry-payment-001
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+              example:
+                paymentStatus: SUCCEEDED
+                statusDetails: Payment retried successfully
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '403':
+          description: Forbidden. You have no access to this session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '409':
+          description: Conflict. The current state of the session does not allow a payment.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+components:
+  schemas:
+    SessionAmount:
+      required:
+      - currencyCode
+      - minorExclVat
+      - minorInclVat
+      - vat
+      type: object
+      properties:
+        currencyCode:
+          type: string
+          description: 3-letter currency code
+          example: EUR
+        minorExclVat:
+          type: integer
+          description: 'Minor units amount. Example: 2785 = 27.85€.'
+          example: 2785
+        minorInclVat:
+          type: integer
+          description: Minor units amount
+        vat:
+          type: string
+          description: VAT percentage
+          example: '17.5'
+      description: Monetary amount with currency and VAT breakdown.
+    Receipt:
+      required:
+      - url
+      type: object
+      properties:
+        url:
+          type: string
+    Session:
+      required:
+      - sessionStatus
+      - connectorId
+      - sessionId
+      - transactions
+      type: object
+      properties:
+        balanceStatus:
+          $ref: '#/components/schemas/SessionBalanceStatus'
+          description: Balance state after applying session costs.
+        sessionStatus:
+          $ref: '#/components/schemas/SessionStatus'
+          description: Current lifecycle status of the session.
+        charger:
+          $ref: '#/components/schemas/SessionCharger'
+          description: Charger location and connector metadata.
+        balanceAmountMinor:
+          type: number
+          example: '-2160'
+          description: Type "Long". This field is not relevant for External Clearing (only used when using Plugsurfing's Payment Service Provider). Represents the remaining amount to be paid, expressed as a negative number. A value of 0 indicates the balance is fully paid. -2160 means there is an outstanding amount of 21.60 in the currency of the session.
+        chargingKeyType:
+          type: string
+          example: virtual
+          description: Only available after a session has successfully started. Possible values are "tag", "card", "virtual" or "plug_and_charge".
+        connectorId:
+          type: string
+          example: O9UXK+YI5Q6i0FoI4qHwcA==
+          description: Only available after a session has successfully started.
+        duration:
+          type: string
+          format: duration
+          description: The value is in ISO 8601 duration format
+          example: PT28.913S
+        energy:
+          $ref: '#/components/schemas/SessionEnergy'
+          description: Energy consumed during the session.
+        paymentMethod:
+          type: string
+          enum:
+          - CREDIT_CARD
+          - EXTERNAL
+          - PREPAID
+          - WRITE_OFF
+          deprecated: true
+          description: 'Returns the `paymentMethod` of the transaction with the earliest timestamp. This field is `DEPRECATED` and will be removed in future versions. Use `session.transactions[].paymentMethod` instead. Migration note: `WRITE_OFF` was renamed to `NONE`, where `session.transactions[].paymentOutcome=WRITE_OFF` is the replacement'
+        price:
+          $ref: '#/components/schemas/SessionAmount'
+          description: Total session price.
+        receiptAvailable:
+          type: boolean
+          description: Indicates whether a receipt can be downloaded.
+        sessionId:
+          type: string
+          example: AAdmD55q8Vz
+          description: Unique identifier of the charging session.
+        site:
+          type: string
+          example: Drive_API_Test1
+          description: Human-readable charging site name.
+        startTime:
+          $ref: '#/components/schemas/Time'
+          description: UTC timestamp when the session started.
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+          description: Transactions linked to this charging session.
+      description: Detailed charging session information.
+    PaymentRequest:
+      type: object
+      required:
+      - paymentOptionId, returnUrl
+      properties:
+        paymentOptionId:
+          type: string
+          description: The id of the payment option
+          example: STRIPE-2059519182987632
+        returnUrl:
+          type: string
+          description: The URL to which your customer will be redirected after they complete or cancel their payment authentication. If you prefer to redirect them to a mobile application, you can alternatively provide an application URI scheme.
+          example: https://landing.page.after.3ds.authentication
+      description: Request payload to retry or initiate a session payment.
+    PaymentStatus:
+      type: string
+      description: The status `REQUIRES_3DS_AUTHENTICATION` means you must authenticate the user using the client secret before the payment is accepted.
+      enum:
+      - SUCCEEDED
+      - FAILED
+      - REQUIRES_3DS_AUTHENTICATION
+    SessionStatus:
+      type: string
+      description: IMPORTANT - when handling this enum other unknown values should be handled.
+      enum:
+      - CREATED
+      - WAITING_TO_START
+      - STARTED
+      - WAITING_TO_STOP
+      - STOPPED
+      - COMPLETE
+      - FAILED
+      - UNKNOWN
+      - STOP_FAILED
+    SessionsHistoryResponse:
+      required:
+      - sessions
+      type: object
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Session'
+          description: Sessions matching the requested filters.
+        cursor:
+          type: string
+          description: Use this exact string to get next page. If absent, it means no next page is available.
+          example: 50
+        count:
+          type: integer
+          description: The total amount of sessions taking into account the filters sessionStatus, chargingKeyId, startTime and endTime, if provided.
+          example: 946
+      description: Paginated list of sessions returned by history queries.
+    SessionEnergy:
+      required:
+      - unit
+      - value
+      type: object
+      properties:
+        unit:
+          type: string
+          example: WH
+          description: Energy unit, typically kWh.
+        value:
+          type: number
+          example: 57
+          description: Measured energy value for the session.
+      description: Energy measurement data for a charging session.
+    SessionCharger:
+      type: object
+      properties:
+        chargingStationName:
+          type: string
+          example: Drive_API_Test1_Station1
+          description: Display name of the charging station.
+        city:
+          type: string
+          example: Solna
+          description: City where the charger is located.
+        connectorLabel:
+          type: string
+          example: '1'
+          description: Connector label reported by the charge point operator.
+        evseId:
+          type: string
+          example: SE*CND*EC1*1
+          description: EVSE identifier for the charging point.
+        streetName:
+          type: string
+          example: Rättarvägen
+          description: Street address of the charger.
+      description: Location and connector information for the charger used in a session.
+    InvalidRequestErrorResponse:
+      title: InvalidRequestErrorResponse
+      type: object
+      required:
+      - message
+      - fields
+      properties:
+        message:
+          type: string
+        fields:
+          type: array
+          items:
+            title: InvalidField
+            type: object
+            required:
+            - name
+            - message
+            - rejectedValue
+            properties:
+              name:
+                type: string
+              message:
+                type: string
+                example: UserId is not correct
+              rejectedValue:
+                type: string
+    SessionBalanceStatus:
+      type: string
+      enum:
+      - PROCESSING
+      - PAID
+      - DEBT
+      - REFUND
+      description: 'Note: this field is not relevant when using External Clearing.'
+    Time:
+      type: string
+      format: date-time
+      description: Timestamp in ISO 8601 UTC format with up to nanosecond precision.
+      example: '2021-01-30T10:00:00.111111111Z'
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      properties:
+        message:
+          type: string
+    Transaction:
+      type: object
+      description: Represents a transaction with payment details and time.
+      properties:
+        paymentMethod:
+          type: string
+          enum:
+          - CREDIT_CARD
+          - EXTERNAL
+          - PREPAID
+          - NONE
+          description: The payment method used for the transaction. Can be `NONE` for outcome `WRITE_OFF`
+        paymentOutcome:
+          type: string
+          enum:
+          - CHARGE
+          - WRITE_OFF
+          - REFUND
+          description: The outcome of the payment process.
+        amount:
+          $ref: '#/components/schemas/SessionAmount'
+        time:
+          $ref: '#/components/schemas/Time'
+      required:
+      - paymentMethod
+      - paymentOutcome
+      - amount
+      - time
+    SessionsHistoryRequest:
+      type: object
+      properties:
+        sessionStatus:
+          type: array
+          description: If not passed, only COMPLETE sessions are returned.
+          items:
+            $ref: '#/components/schemas/SessionStatus'
+        chargingKeyId:
+          type: string
+          example: kjG86L3wn5
+          description: Filter sessions by charging key identifier.
+        startTime:
+          type: string
+          format: date-time
+          description: Lower bound for session start time (inclusive) in UTC.
+        endTime:
+          type: string
+          format: date-time
+          description: Upper bound for session start time (inclusive) in UTC.
+        cursor:
+          type: string
+          description: Cursor string - pass cursor from previous response body to get next page.
+          example: 50
+        limit:
+          type: integer
+          description: Number of entries
+          default: 50
+      description: Filtering and pagination options for retrieving session history.
+    PaymentResponse:
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+          description: Status of the payment attempt.
+        clientSecret:
+          type: string
+          description: The client secret to be used when user authentication is required for the payment to be accepted. E.g. When the payment `status` have a value of `REQUIRES_3DS_AUTHENTICATION`. Ignore otherwise.
+          example: pi_1DtBRR2eZvKYlo2CmCVxxvd7_secret_cWsUkvyTOjhLKh5Wxu61nYc0i
+      description: Response payload describing the payment attempt result.
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication

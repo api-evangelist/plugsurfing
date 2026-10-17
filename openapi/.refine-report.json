@@ -1,0 +1,35 @@
+{
+  "provider": "plugsurfing",
+  "sources": [
+    "_original/plugsurfing-reference-openapi.json"
+  ],
+  "outputs": [
+    "plugsurfing-charging-key-orders-api-openapi.yml",
+    "plugsurfing-charging-keys-api-openapi.yml",
+    "plugsurfing-drive-api-api-openapi.yml",
+    "plugsurfing-emp-charging-keys-api-openapi.yml",
+    "plugsurfing-emp-fleets-api-openapi.yml",
+    "plugsurfing-emp-geosearch-api-openapi.yml",
+    "plugsurfing-emp-orders-api-openapi.yml",
+    "plugsurfing-emp-sessions-api-openapi.yml",
+    "plugsurfing-geosearch-api-openapi.yml",
+    "plugsurfing-payment-options-api-openapi.yml",
+    "plugsurfing-remote-charging-api-openapi.yml",
+    "plugsurfing-sessions-api-openapi.yml",
+    "plugsurfing-user-groups-api-openapi.yml",
+    "plugsurfing-users-api-openapi.yml",
+    "plugsurfing-vouchers-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "plugsurfing-reference-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "plugsurfing-reference-openapi.json: tagged webhooks POST Session Events -> Drive API",
+    "plugsurfing-reference-openapi.json: tagged webhooks POST CDR Forwarding -> Drive API",
+    "plugsurfing-reference-openapi.json: declared missing tag: Drive API",
+    "apis.yml register: written (+15 apis, 16 total)"
+  ],
+  "skipped": []
+}

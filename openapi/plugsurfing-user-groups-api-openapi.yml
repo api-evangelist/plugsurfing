@@ -1,0 +1,160 @@
+openapi: 3.2.0
+info:
+  title: Drive User Groups API
+  version: 1.0.0
+  description: The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network. It enables you to manage users, charging keys, search for charging locations, handle payments, and control charging sessions.
+servers:
+- url: https://{environment}.plugsurfing.com
+  variables:
+    environment:
+      enum:
+      - drive-api-stage
+      default: drive-api-stage
+      description: API environment - use drive-api-stage for testing and drive-api for production
+tags:
+- name: User Groups
+  description: Manage user group memberships
+paths:
+  /drive/v1/users/{userId}/user-groups/{groupId}:
+    post:
+      tags:
+      - User Groups
+      summary: Add user to user group
+      description: Creates a membership link between the user and the specified user group.
+      operationId: createUserGroupMembership
+      parameters:
+      - name: userId
+        in: path
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      - name: groupId
+        in: path
+        description: User Group id
+        example: aGnOerO87e
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Adding user to user group was successful
+        '400':
+          description: Bad Request - returned when user group id is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User or user group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+    delete:
+      tags:
+      - User Groups
+      summary: Remove user from user group
+      description: Deletes the membership link between the user and the specified user group.
+      operationId: deleteUserGroupMembership
+      parameters:
+      - name: userId
+        in: path
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      - name: groupId
+        in: path
+        description: User Group id
+        example: aGnOerO87e
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Removing user from user group was successful
+        '400':
+          description: Bad Request - returned when user group id is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+components:
+  schemas:
+    InvalidRequestErrorResponse:
+      title: InvalidRequestErrorResponse
+      type: object
+      required:
+      - message
+      - fields
+      properties:
+        message:
+          type: string
+        fields:
+          type: array
+          items:
+            title: InvalidField
+            type: object
+            required:
+            - name
+            - message
+            - rejectedValue
+            properties:
+              name:
+                type: string
+              message:
+                type: string
+                example: UserId is not correct
+              rejectedValue:
+                type: string
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      properties:
+        message:
+          type: string
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication

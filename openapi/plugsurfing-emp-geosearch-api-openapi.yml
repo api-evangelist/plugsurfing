@@ -1,0 +1,1484 @@
+openapi: 3.2.0
+info:
+  title: Drive EMP Geosearch API
+  version: 1.0.0
+  description: The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network. It enables you to manage users, charging keys, search for charging locations, handle payments, and control charging sessions.
+servers:
+- url: https://{environment}.plugsurfing.com
+  variables:
+    environment:
+      enum:
+      - drive-api-stage
+      default: drive-api-stage
+      description: API environment - use drive-api-stage for testing and drive-api for production
+tags:
+- name: EMP Geosearch
+  description: E-Mobility Provider specific endpoints for location search and information
+paths:
+  /emp/v1/geosearch/radius:
+    post:
+      summary: Search locations around a point
+      description: Search for charging locations within a specified radius around a geographic point. The center point is passed via the `latitude` and `longitude` query parameters; the request body contains only filters. Returns up to 300 locations sorted by proximity to the search center (nearest first).
+      operationId: searchEmpLocationsByRadius
+      tags:
+      - EMP Geosearch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RadiusRequest'
+            example:
+              filters:
+                connectorStandards:
+                - Type2
+                capabilities:
+                - REMOTE_START_STOP_CAPABLE
+      parameters:
+      - name: latitude
+        in: query
+        required: true
+        example: '52.331142'
+        schema:
+          type: string
+      - name: longitude
+        in: query
+        required: true
+        example: '13.145221'
+        schema:
+          type: string
+      - name: distance
+        in: query
+        description: Distance in m
+        schema:
+          type: number
+          default: 30000
+      - name: limit
+        in: query
+        description: Number of locations returned in the response (doesn't apply when aggregation is enabled)
+        schema:
+          type: number
+          maximum: 300
+          default: 300
+      - name: aggregate
+        in: query
+        description: If true, the results will be aggregated. For large radius it makes the response much faster.
+        required: false
+        schema:
+          type: boolean
+          default: false
+      - name: aggregationPrecision
+        in: query
+        description: Value between 2 and 9. The bigger value is, the smaller is the cell size of the grid for aggregation. If not passed, a default value, based on radius, is assumed.
+        required: false
+        schema:
+          type: integer
+          minimum: 2
+          maximum: 9
+      - name: fleetId
+        in: query
+        description: Optional - the id of the fleet organization, will be used to look up locations available for this fleet. If fleet id is not provided, the locations available to the EMP will be provided
+        required: false
+        schema:
+          type: string
+      - name: language
+        schema:
+          type: string
+          minLength: 2
+          maxLength: 2
+        in: query
+        required: false
+        example: en
+        description: 'Supported languages: en, bg, cy, de, es, fi, fr, hu, is, it, lt, nb, nl, pl, pt, ro, sv.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponseListLocation'
+              example:
+                locations:
+                - id: 8rMCionje8s2LtheVGEK90mYnJdJe5OZd48ecF/w1StRJSodFFzfQ3GhJbYbxG0gQhJv/Yjp5FXBJt14SccU9zFRdnC4SV7juPdCRaWkEZo=
+                  name: Ebee Smart Technologies
+                  coordinates:
+                    latitude: '52.475911'
+                    longitude: '13.350794'
+                  evses:
+                  - uid: 8rMCionje8s2LtheVGEK90mYnJdJe5OZd48ecF/w1StRJSodFFzfQ3GhJbYbxG0g3wFt7gLfnV3ulxmnoAzR4W/DFEMs63CndZpPK6L2aJG9qMC0Dp9OqeegGRXmiTOE
+                    evse_id: +49*839*030*000074
+                    physical_reference: '4'
+                    status: AVAILABLE
+                    connectors:
+                    - {}
+                    capabilities:
+                    - RESERVABLE
+                    - PLUG_AND_CHARGE_CAPABLE
+                    - PLUG_AND_CHARGE_CAPABLE
+                    last_updated: '2025-01-15T10:30:00Z'
+                  operator:
+                    id: '881941'
+                    name: Ebee Smart Technologies
+                    hotline: '+498944255071'
+                    external_id: DE*ABC
+                  operator_display_name: Sub-operator X
+                  opening_times:
+                    twentyfourseven: false
+                    regular_hours:
+                    - weekday: 1
+                      period_begin: 00:10
+                      period_end: '29:59'
+                    exceptional_openings:
+                    - period_begin: '2025-01-15T10:30:00Z'
+                      period_end: '2025-01-15T10:30:00Z'
+                    exceptional_closings:
+                    - period_begin: '2025-01-15T10:30:00Z'
+                      period_end: '2025-01-15T10:30:00Z'
+                  directions:
+                  - language: DE
+                    text: example
+                  country: DEU
+                  state: Bayern
+                  city: Berlin
+                  postal_code: 10829
+                  address: EUREF CAMPUS 4-5
+                  openNow: false
+                  is_green_energy: false
+                  last_updated: '2024-03-15T14:30:00Z'
+                aggregates:
+                - coordinates:
+                    latitude: '52.475911'
+                    longitude: '13.350794'
+                  count: 1
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /emp/v1/geosearch/rectangle:
+    post:
+      summary: Search locations within a rectangle
+      description: Search for charging locations within a specified rectangle defined by two diagonal points. The rectangle coordinates are passed via the `topLatitude`, `bottomLatitude`, `leftLongitude`, and `rightLongitude` query parameters; the request body contains only filters. Returns up to 300 locations.
+      operationId: searchEmpLocationsByRectangle
+      tags:
+      - EMP Geosearch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RectangleRequest'
+            example:
+              filters:
+                connectorStandards:
+                - Combo
+                capabilities:
+                - CHARGING_PROFILE_CAPABLE
+      parameters:
+      - name: topLatitude
+        in: query
+        required: true
+        description: Latitude of the top edge of the rectangle in decimal degrees (e.g. N58°30' is represented as 58.5). Must be greater than bottomLatitude.
+        example: 52.354551
+        schema:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+      - name: bottomLatitude
+        in: query
+        required: true
+        description: Latitude of the bottom edge of the rectangle in decimal degrees (e.g. S58°30' is represented as -58.5)
+        example: 52.354551
+        schema:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+      - name: leftLongitude
+        in: query
+        required: true
+        description: Longitude of the left edge of the rectangle in decimal degrees (e.g. E014°45' is represented as 14.75). Must be less than rightLongitude.
+        example: 4.7391593
+        schema:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+      - name: rightLongitude
+        in: query
+        required: true
+        description: Longitude of the right edge of the rectangle in decimal degrees (e.g. E014°45' is represented as 14.75)
+        example: 4.7391593
+        schema:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+      - name: limit
+        in: query
+        description: Number of locations returned in the response (doesn't apply when aggregation is enabled)
+        schema:
+          type: number
+          maximum: 300
+          default: 300
+      - name: aggregate
+        in: query
+        description: If true, the results will be aggregated. For large radius it makes the response much faster.
+        required: false
+        schema:
+          type: boolean
+          default: false
+      - name: aggregationPrecision
+        in: query
+        description: Value between 2 and 9. The bigger value is, the smaller is the cell size of the grid for aggregation. If not passed, a default value, based on radius, is assumed.
+        required: false
+        schema:
+          type: integer
+          minimum: 2
+          maximum: 9
+      - name: fleetId
+        in: query
+        description: Optional - the id of the fleet organization, will be used to look up locations available for this fleet. If fleet id is not provided, the locations available to the EMP will be provided
+        required: false
+        schema:
+          type: string
+      - name: language
+        schema:
+          type: string
+          minLength: 2
+          maxLength: 2
+        in: query
+        required: false
+        example: en
+        description: 'Supported languages: en, bg, cy, de, es, fi, fr, hu, is, it, lt, nb, nl, pl, pt, ro, sv.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponseListLocation'
+              example:
+                locations:
+                - id: 8rMCionje8s2LtheVGEK90mYnJdJe5OZd48ecF/w1StRJSodFFzfQ3GhJbYbxG0gQhJv/Yjp5FXBJt14SccU9zFRdnC4SV7juPdCRaWkEZo=
+                  name: Ebee Smart Technologies
+                  coordinates:
+                    latitude: '52.475911'
+                    longitude: '13.350794'
+                  evses:
+                  - uid: 8rMCionje8s2LtheVGEK90mYnJdJe5OZd48ecF/w1StRJSodFFzfQ3GhJbYbxG0g3wFt7gLfnV3ulxmnoAzR4W/DFEMs63CndZpPK6L2aJG9qMC0Dp9OqeegGRXmiTOE
+                    evse_id: +49*839*030*000074
+                    physical_reference: '4'
+                    status: AVAILABLE
+                    connectors:
+                    - {}
+                    capabilities:
+                    - RESERVABLE
+                    - PLUG_AND_CHARGE_CAPABLE
+                    - PLUG_AND_CHARGE_CAPABLE
+                    last_updated: '2025-01-15T10:30:00Z'
+                  operator:
+                    id: '881941'
+                    name: Ebee Smart Technologies
+                    hotline: '+498944255071'
+                    external_id: DE*ABC
+                  operator_display_name: Sub-operator X
+                  opening_times:
+                    twentyfourseven: false
+                    regular_hours:
+                    - weekday: 1
+                      period_begin: 00:10
+                      period_end: '29:59'
+                    exceptional_openings:
+                    - period_begin: '2025-01-15T10:30:00Z'
+                      period_end: '2025-01-15T10:30:00Z'
+                    exceptional_closings:
+                    - period_begin: '2025-01-15T10:30:00Z'
+                      period_end: '2025-01-15T10:30:00Z'
+                  directions:
+                  - language: DE
+                    text: example
+                  country: DEU
+                  state: Bayern
+                  city: Berlin
+                  postal_code: 10829
+                  address: EUREF CAMPUS 4-5
+                  openNow: false
+                  is_green_energy: false
+                  last_updated: '2024-03-15T14:30:00Z'
+                aggregates:
+                - coordinates:
+                    latitude: '52.475911'
+                    longitude: '13.350794'
+                  count: 1
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /emp/v1/geosearch/route:
+    post:
+      summary: Search for locations along a route
+      description: Search for locations along a route. The max number of points in a route is 300.
+      operationId: searchEmpLocationsByRoute
+      tags:
+      - EMP Geosearch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlongRouteRequest'
+            example:
+              points:
+              - latitude: 52.52
+                longitude: 13.405
+              - latitude: 52.37
+                longitude: 4.9
+              filters:
+                connectorStandards:
+                - Combo
+      parameters:
+      - name: width
+        in: query
+        description: Width of the searching path in meters. 0.5 of the width on each side.
+        schema:
+          type: number
+          default: 3000
+      - name: limit
+        in: query
+        description: Number of locations returned in the response (doesn't apply when aggregation is enabled)
+        schema:
+          type: number
+          maximum: 300
+          default: 300
+      - name: aggregate
+        in: query
+        description: If true, the results will be aggregated. For large radius it makes the response much faster.
+        required: false
+        schema:
+          type: boolean
+          default: false
+      - name: aggregationPrecision
+        in: query
+        description: 'Value between 2 and 9. The bigger value is, the smaller is the cell size of the grid for aggregation. If not passed, a default value, based on radius, is assumed. Grid sizes: 2=1252.3km x 624.1km, 3=156.5km x 156km, 4=39.1km x 19.5km, 5=4.9km x 4.9km, 6=1.2km x 609.4m, 7=152.9m x 152.4m, 8=38.2m x 19m, 9=4.8m x 4.8m'
+        required: false
+        schema:
+          type: number
+          minimum: 2
+          maximum: 9
+      - name: fleetId
+        in: query
+        description: Optional - the id of the fleet organization, will be used to look up locations available for this fleet. If fleet id is not provided, the locations available to the EMP will be provided
+        required: false
+        schema:
+          type: string
+      - name: language
+        schema:
+          type: string
+          minLength: 2
+          maxLength: 2
+        in: query
+        required: false
+        example: en
+        description: 'Supported languages: en, bg, cy, de, es, fi, fr, hu, is, it, lt, nb, nl, pl, pt, ro, sv.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponseListLocation'
+              example:
+                locations:
+                - id: 8rMCionje8s2LtheVGEK90mYnJdJe5OZd48ecF/w1StRJSodFFzfQ3GhJbYbxG0gQhJv/Yjp5FXBJt14SccU9zFRdnC4SV7juPdCRaWkEZo=
+                  name: Ebee Smart Technologies
+                  coordinates:
+                    latitude: '52.475911'
+                    longitude: '13.350794'
+                  evses:
+                  - uid: 8rMCionje8s2LtheVGEK90mYnJdJe5OZd48ecF/w1StRJSodFFzfQ3GhJbYbxG0g3wFt7gLfnV3ulxmnoAzR4W/DFEMs63CndZpPK6L2aJG9qMC0Dp9OqeegGRXmiTOE
+                    evse_id: +49*839*030*000074
+                    physical_reference: '4'
+                    status: AVAILABLE
+                    connectors:
+                    - {}
+                    capabilities:
+                    - RESERVABLE
+                    - PLUG_AND_CHARGE_CAPABLE
+                    - PLUG_AND_CHARGE_CAPABLE
+                    last_updated: '2025-01-15T10:30:00Z'
+                  operator:
+                    id: '881941'
+                    name: Ebee Smart Technologies
+                    hotline: '+498944255071'
+                    external_id: DE*ABC
+                  operator_display_name: Sub-operator X
+                  opening_times:
+                    twentyfourseven: false
+                    regular_hours:
+                    - weekday: 1
+                      period_begin: 00:10
+                      period_end: '29:59'
+                    exceptional_openings:
+                    - period_begin: '2025-01-15T10:30:00Z'
+                      period_end: '2025-01-15T10:30:00Z'
+                    exceptional_closings:
+                    - period_begin: '2025-01-15T10:30:00Z'
+                      period_end: '2025-01-15T10:30:00Z'
+                  directions:
+                  - language: DE
+                    text: example
+                  country: DEU
+                  state: Bayern
+                  city: Berlin
+                  postal_code: 10829
+                  address: EUREF CAMPUS 4-5
+                  openNow: false
+                  is_green_energy: false
+                  last_updated: '2024-03-15T14:30:00Z'
+                aggregates:
+                - coordinates:
+                    latitude: '52.475911'
+                    longitude: '13.350794'
+                  count: 1
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /emp/v1/locations/{locationId}:
+    get:
+      tags:
+      - EMP Geosearch
+      summary: Get location by id
+      description: Returns detailed location data for a single charging location, with optional pricing context. Only one of keyIdentifier or fleetId can be provided in a single request. If none are provided, default prices are returned.
+      operationId: getEmpLocationById
+      parameters:
+      - name: locationId
+        in: path
+        description: Location id.
+        required: true
+        schema:
+          type: string
+      - name: keyIdentifier
+        in: query
+        description: The keyIdentifier of a charging key, will be used to look up specific prices for this charging key.
+        required: false
+        schema:
+          type: string
+      - name: fleetId
+        in: query
+        description: Optional - the id of the fleet organization, will be used for fleet-specific location context. If fleet id is not provided, the EMP location context will be used
+        required: false
+        schema:
+          type: string
+      - name: language
+        in: query
+        description: 'Supported languages: en, bg, cy, de, es, fi, fr, hu, is, it, lt, nb, nl, pl, pt, ro, sv.'
+        required: false
+        schema:
+          type: string
+          minLength: 2
+          maxLength: 2
+        example: en
+      responses:
+        '200':
+          description: Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+              example:
+                id: 8rMCionje8s2LtheVGEK90mYnJdJe5OZd48ecF/w1StRJSodFFzfQ3GhJbYbxG0gQhJv/Yjp5FXBJt14SccU9zFRdnC4SV7juPdCRaWkEZo=
+                name: Ebee Smart Technologies
+                coordinates:
+                  latitude: '52.475911'
+                  longitude: '13.350794'
+                evses:
+                - uid: 8rMCionje8s2LtheVGEK90mYnJdJe5OZd48ecF/w1StRJSodFFzfQ3GhJbYbxG0g3wFt7gLfnV3ulxmnoAzR4W/DFEMs63CndZpPK6L2aJG9qMC0Dp9OqeegGRXmiTOE
+                  evse_id: +49*839*030*000074
+                  physical_reference: '4'
+                  status: AVAILABLE
+                  connectors:
+                  - id: 8rMCionje8s2LtheVGEK90mYnJdJe5OZd48ecF/w1StRJSodFFzfQ3GhJbYbxG0g3wFt7gLfnV3ulxmnoAzR4W/DFEMs63CndZpPK6L2aJEM0D69tJVN05/1hZ1zxqZSJ9kBdNsmfryS0+gvjLNZvdF1pDHJuCTydsJX6vPZh7U=
+                    standard: Type2
+                    power: 22000
+                    power_type: AC_3_PHASE
+                    price:
+                      id: 4370769f30bd7927
+                      description: € 0.56/kWh, € 0.10/min (> 2 h)
+                      currency: EUR
+                      priceIncludesVat: 'true'
+                      vatRate: '22'
+                      elements:
+                      - {}
+                    max_amperage: 32
+                    max_voltage: 400
+                  capabilities:
+                  - RESERVABLE
+                  - PLUG_AND_CHARGE_CAPABLE
+                  - PLUG_AND_CHARGE_CAPABLE
+                  last_updated: '2025-01-15T10:30:00Z'
+                operator:
+                  id: '881941'
+                  name: Ebee Smart Technologies
+                  hotline: '+498944255071'
+                  external_id: DE*ABC
+                operator_display_name: Sub-operator X
+                opening_times:
+                  twentyfourseven: false
+                  regular_hours:
+                  - weekday: 1
+                    period_begin: 00:10
+                    period_end: '29:59'
+                  exceptional_openings:
+                  - period_begin: '2025-01-15T10:30:00Z'
+                    period_end: '2025-01-15T10:30:00Z'
+                  exceptional_closings:
+                  - period_begin: '2025-01-15T10:30:00Z'
+                    period_end: '2025-01-15T10:30:00Z'
+                directions:
+                - language: DE
+                  text: example
+                country: DEU
+                state: Bayern
+                city: Berlin
+                postal_code: 10829
+                address: EUREF CAMPUS 4-5
+                openNow: false
+                is_green_energy: false
+                last_updated: '2024-03-15T14:30:00Z'
+        '404':
+          description: Location not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /emp/v1/locations/{locationId}/live-data:
+    get:
+      tags:
+      - EMP Geosearch
+      summary: Get location live data
+      operationId: getEmpLocationLiveData
+      description: Returns live charging data for the EVSEs of a location that are in use, including since when each EVSE has had its current live status. The `charge_point_statuses` keys match the EVSE `uid` values returned by Get location by id. EVSEs without live data are omitted. Returns `404` when the location is not found or live data is not enabled for your organization. For details, check https://developer.plugsurfing.com/docs/geosearch#location-live-data
+      parameters:
+      - name: locationId
+        in: path
+        description: Location id.
+        required: true
+        schema:
+          type: string
+      - name: fleetId
+        in: query
+        description: Optional - the id of the fleet organization, will be used for fleet-specific location context. If fleet id is not provided, the EMP location context will be used
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Live data of the location EVSEs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationLiveData'
+              example:
+                charge_point_statuses:
+                  ee006b89511e81534e019ca0d9a780b351e9:
+                    status: CHARGING
+                    status_since: '2025-01-15T08:12:00Z'
+        '404':
+          description: Location not found or live data not enabled for your organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Internal server error
+      security:
+      - ApiKeyAuth: []
+  /emp/v1/locations/batch:
+    get:
+      tags:
+      - EMP Geosearch
+      summary: Get batch of locations
+      description: Returns a paginated batch of charging locations for EMP integrations using cursor-based pagination.
+      operationId: getEmpLocationsBatch
+      parameters:
+      - name: page_size
+        in: query
+        description: Optional - used to set page size value
+        required: false
+        schema:
+          type: number
+          minimum: 10
+          maximum: 500
+          default: 50
+      - name: cursor
+        in: query
+        description: Optional - pass cursor from previous response body to get next page.
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchLocationsResponse'
+              example:
+                locations:
+                - id: 8rMCionje8s2LtheVGEK90mYnJdJe5OZd48ecF/w1StRJSodFFzfQ3GhJbYbxG0gQhJv/Yjp5FXBJt14SccU9zFRdnC4SV7juPdCRaWkEZo=
+                  name: Ebee Smart Technologies
+                  coordinates:
+                    latitude: '52.475911'
+                    longitude: '13.350794'
+                  evses:
+                  - uid: 8rMCionje8s2LtheVGEK90mYnJdJe5OZd48ecF/w1StRJSodFFzfQ3GhJbYbxG0g3wFt7gLfnV3ulxmnoAzR4W/DFEMs63CndZpPK6L2aJG9qMC0Dp9OqeegGRXmiTOE
+                    evse_id: +49*839*030*000074
+                    physical_reference: '4'
+                    status: AVAILABLE
+                    connectors:
+                    - {}
+                    capabilities:
+                    - RESERVABLE
+                    - PLUG_AND_CHARGE_CAPABLE
+                    - PLUG_AND_CHARGE_CAPABLE
+                    last_updated: '2025-01-15T10:30:00Z'
+                  operator:
+                    id: '881941'
+                    name: Ebee Smart Technologies
+                    hotline: '+498944255071'
+                    external_id: DE*ABC
+                  operator_display_name: Sub-operator X
+                  opening_times:
+                    twentyfourseven: false
+                    regular_hours:
+                    - weekday: 1
+                      period_begin: 00:10
+                      period_end: '29:59'
+                    exceptional_openings:
+                    - period_begin: '2025-01-15T10:30:00Z'
+                      period_end: '2025-01-15T10:30:00Z'
+                    exceptional_closings:
+                    - period_begin: '2025-01-15T10:30:00Z'
+                      period_end: '2025-01-15T10:30:00Z'
+                  directions:
+                  - language: DE
+                    text: example
+                  country: DEU
+                  state: Bayern
+                  city: Berlin
+                  postal_code: 10829
+                  address: EUREF CAMPUS 4-5
+                  openNow: false
+                  is_green_energy: false
+                  last_updated: '2024-03-15T14:30:00Z'
+                cursor: string
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+components:
+  schemas:
+    BaseResponseListLocation:
+      type: object
+      required:
+      - locations
+      properties:
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+          description: Locations matching the geosearch criteria.
+        aggregates:
+          type: array
+          description: Present only if 'aggregate' request param = true. Contains only aggregates of 2 or more locations. Single locations are returned in 'locations' array.
+          items:
+            $ref: '#/components/schemas/Aggregate'
+      description: Response payload containing matching locations and aggregate metadata for a geosearch query.
+    PriceComponent:
+      type: object
+      description: Defines a single component of a charging price. A price can have multiple components (e.g., energy cost + time cost).
+      properties:
+        price:
+          type: number
+          example: 0
+          description: Cost in the currency stated above. VAT is included. Decimal number. For example, if currency is EUR and price is 1.10, the cost is €1.10. More information can be found in https://developer.plugsurfing.com/docs/geosearch#explanation
+        type:
+          type: string
+          example: FLAT
+          description: More information can be found in https://developer.plugsurfing.com/docs/geosearch#explanation
+          enum:
+          - TIME
+          - ENERGY
+          - FLAT
+          - CAPPED
+          - PARKING_TIME
+          - CONGESTION_TIME
+        step_size:
+          type: number
+          example: 1
+          description: 'The smallest unit of usage that will be billed. Unit: seconds for `TIME`, `PARKING_TIME`, and `CONGESTION_TIME`; watt-hours (Wh) for `ENERGY`; ignored for `FLAT` and `CAPPED`. More information can be found in https://developer.plugsurfing.com/docs/geosearch#explanation'
+    ParkingRestriction:
+      type: string
+      enum:
+      - EV_ONLY
+      - PLUGGED
+      - DISABLED
+      - CUSTOMERS
+      - MOTORCYCLES
+      example: EV_ONLY
+    InvalidRequestErrorResponse:
+      title: InvalidRequestErrorResponse
+      type: object
+      required:
+      - message
+      - fields
+      properties:
+        message:
+          type: string
+        fields:
+          type: array
+          items:
+            title: InvalidField
+            type: object
+            required:
+            - name
+            - message
+            - rejectedValue
+            properties:
+              name:
+                type: string
+              message:
+                type: string
+                example: UserId is not correct
+              rejectedValue:
+                type: string
+    ChargePointLiveData:
+      required:
+      - status
+      - status_since
+      type: object
+      description: Live status of an EVSE, tracked by Plugsurfing from the charger status updates.
+      properties:
+        status:
+          type: string
+          enum:
+          - CHARGING
+          - OCCUPIED
+          - RESERVED
+          description: Live status of the EVSE. It is tracked separately from the EVSE `status` returned by Get location by id, so the two can differ.
+        status_since:
+          type: string
+          format: date-time
+          description: Time since which Plugsurfing has continuously tracked the live `status` of the EVSE. For `CHARGING`, it is the start of the current charging occupation. It is based on status updates, so it can differ from the actual session start. It is not the EVSE `last_updated`.
+          example: '2025-01-15T08:12:00Z'
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      properties:
+        message:
+          type: string
+    DisplayText:
+      type: object
+      required:
+      - language
+      - text
+      properties:
+        language:
+          type: string
+          maxLength: 2
+          minLength: 2
+          example: DE
+        text:
+          type: string
+          maxLength: 512
+          example: example
+    ConnectorStandard:
+      type: string
+      description: Connector standard accepted by the API. Use `Combo` for CCS connectors. `CHADEMO` is the preferred token; `Chademo` is a legacy alias.
+      enum:
+      - 3PinSquare
+      - Cee2Poles
+      - CeeBlue
+      - CeePlus
+      - CeeRed
+      - Combo
+      - Marechal
+      - Nema5
+      - Scame
+      - CHADEMO
+      - Chademo
+      - Type1
+      - Type2
+      - Type3
+      - TypeE
+      - Schuko
+      - UNKNOWN
+      - T23
+      - T13
+      - T15
+      - Tesla
+      - DOMESTIC_A
+      - DOMESTIC_B
+      - DOMESTIC_C
+      - DOMESTIC_D
+      - DOMESTIC_E
+      - DOMESTIC_F
+      - DOMESTIC_G
+      - DOMESTIC_H
+      - DOMESTIC_I
+      - DOMESTIC_J
+      - DOMESTIC_K
+      - DOMESTIC_L
+      - IEC_60309_2_single_16
+      - IEC_60309_2_three_16
+      - IEC_60309_2_three_32
+      - IEC_60309_2_three_64
+      - IEC_62196_T1
+      - IEC_62196_T1_COMBO
+      - IEC_62196_T2
+      - IEC_62196_T2_COMBO
+      - IEC_62196_T3A
+      - IEC_62196_T3C
+      - TESLA_R
+      - TESLA_S
+      example: Type2
+    RegularHours:
+      description: Only to be used if twentyfourseven = false
+      required:
+      - weekday
+      - period_begin
+      - period_end
+      properties:
+        weekday:
+          type: integer
+          description: Number of day in the week, from Monday (1) till Sunday (7)
+          example: 1
+        period_begin:
+          type: string
+          format: ([0-1][0-9]|2[0-3]):[0-5][0-9]
+          example: 00:10
+        period_end:
+          type: string
+          format: ([0-1][0-9]|2[0-3]):[0-5][0-9]
+          example: '29:59'
+    AlongRouteRequest:
+      type: object
+      description: The request takes up to 300 points for the route
+      properties:
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/Coordinates'
+          description: Ordered route points (latitude/longitude) used to search along the route. The latitude and longitude values are string fields in this request body.
+        filters:
+          $ref: '#/components/schemas/GeoFilters'
+          description: Filtering criteria applied to candidate charging locations.
+      example:
+        points:
+        - latitude: '52.331142'
+          longitude: '13.145221'
+        - latitude: '53.331142'
+          longitude: '14.145221'
+        filters:
+          locationStatuses:
+          - AVAILABLE
+          - CHARGING
+          - OCCUPIED
+          - RESERVED
+          - UNKNOWN
+          - OUTOFORDER
+          connectorStandards:
+          - Type2
+    ParkingType:
+      type: string
+      enum:
+      - ALONG_MOTORWAY
+      - PARKING_GARAGE
+      - PARKING_LOT
+      - ON_DRIVEWAY
+      - ON_STREET
+      - UNDERGROUND_GARAGE
+      example: PARKING_LOT
+    BatchLocationsResponse:
+      type: object
+      required:
+      - locations
+      properties:
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+          description: Locations returned in the current page.
+        cursor:
+          type: string
+          description: The cursor pointing to the next page, when missing it means there are no more pages to fetch.
+      description: Paginated response containing a batch of charging locations.
+    GeoFilters:
+      type: object
+      properties:
+        connectorStandards:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectorStandard'
+          description: Accepted connector standards.
+        locationStatuses:
+          type: array
+          example:
+          - AVAILABLE
+          - CHARGING
+          - OCCUPIED
+          - RESERVED
+          - UNKNOWN
+          - OUTOFORDER
+          items:
+            $ref: '#/components/schemas/ConnectorStatus'
+          description: Only return locations whose status is included in this list. A common default is `[AVAILABLE, CHARGING, OCCUPIED, RESERVED, UNKNOWN, OUTOFORDER]`, which excludes statuses such as `BLOCKED`, `INOPERATIVE`, `OFFLINE`, and `REMOVED`.
+        capabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Capabilities'
+          description: Required EVSE capabilities.
+        power:
+          type: integer
+          example: 30000
+          description: Minimum power in W
+        powerType:
+          type: string
+          enum:
+          - AC
+          - DC
+          description: AC filter will contain both AC 1-phase and 3-phase.
+        operatorIds:
+          type: array
+          items:
+            type: integer
+          description: Get stations only from these operators. (When provided, excludedOperatorIds will be ignored.)
+        excludedOperatorIds:
+          type: array
+          items:
+            type: integer
+          description: Exclude stations from these operators. (This parameter will be ignored when operatorIds are provided.)
+        open247:
+          type: boolean
+          description: Return only stations open 24/7.
+        openNow:
+          type: boolean
+          description: Returns only stations now opened (based on data provided by CPOs). This parameter is not supported with aggregations.
+        evseIds:
+          type: array
+          items:
+            type: string
+          example:
+          - +49*839
+          - '*075*000075'
+          description: Return only stations with evses id match a pattern
+        countries:
+          type: array
+          items:
+            type: string
+            example:
+            - NOR
+            - SWE
+            - DEU
+          description: Array of 3-letter country codes
+      description: Filtering criteria applied to geosearch requests.
+    Location:
+      required:
+      - id
+      - name
+      - coordinates
+      - address
+      - evses
+      - country
+      - city
+      - last_updated
+      type: object
+      properties:
+        id:
+          minLength: 0
+          type: string
+          example: 8rMCionje8s2LtheVGEK90mYnJdJe5OZd48ecF/w1StRJSodFFzfQ3GhJbYbxG0gQhJv/Yjp5FXBJt14SccU9zFRdnC4SV7juPdCRaWkEZo=
+        name:
+          maxLength: 255
+          minLength: 0
+          type: string
+          description: Human-readable name of the charging location
+          example: Ebee Smart Technologies
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+          description: Geographic coordinates of the charging location. These values are returned as strings.
+        evses:
+          type: array
+          description: List of Electric Vehicle Supply Equipment (EVSE) at this location. Each EVSE may have multiple connectors.
+          items:
+            $ref: '#/components/schemas/Evse'
+        parking_type:
+          description: Parking type for the charging location.
+          allOf:
+          - $ref: '#/components/schemas/ParkingType'
+        operator:
+          $ref: '#/components/schemas/BusinessDetails'
+          description: Information about the Charging Point Operator (CPO) managing this location
+        operator_display_name:
+          description: An enhanced display name of the operator. This may be the operator name as found in the operator object, or the sub-operator of the location. When showing the location to end users, this is the operator name that should be shown.
+          type: string
+          example: Sub-operator X
+        opening_times:
+          $ref: '#/components/schemas/OpeningTimes'
+          description: Operating hours of the charging location
+        directions:
+          type: array
+          description: Navigation instructions to help locate the charging points, available in multiple languages
+          items:
+            $ref: '#/components/schemas/DisplayText'
+        country:
+          maxLength: 3
+          minLength: 3
+          description: Three-letter country code (ISO 3166-1 alpha-3) where the charging location is situated
+          type: string
+          example: DEU
+        state:
+          description: State, region, or province where the charging location is situated. Format varies by country.
+          type: string
+          example: Bayern
+        city:
+          type: string
+          description: City where the charging location is situated
+          example: Berlin
+        postal_code:
+          type: string
+          description: Postal code of the charging location
+          example: 10829
+        address:
+          type: string
+          description: Street address of the charging location
+          example: EUREF CAMPUS 4-5
+        openNow:
+          type: boolean
+          description: Indicates if the location is currently open based on opening_hours and local timezone. Use this for quick filtering of available locations.
+          example: false
+        is_green_energy:
+          type: boolean
+          description: Indicates if the location uses renewable energy sources for charging, based on CPO-provided data
+          example: false
+        last_updated:
+          type: string
+          description: ISO 8601 timestamp of when this location's data was last updated. Use this to track changes and implement efficient polling.
+          example: '2024-03-15T14:30:00Z'
+    ConnectorStatus:
+      type: string
+      enum:
+      - AVAILABLE
+      - CHARGING
+      - BLOCKED
+      - INOPERATIVE
+      - OCCUPIED
+      - OFFLINE
+      - OUTOFORDER
+      - PLANNED
+      - REMOVED
+      - RESERVED
+      - UNKNOWN
+      - UNAVAILABLE
+      example: AVAILABLE
+    PriceElement:
+      type: object
+      required:
+      - price_components
+      description: Defines a complete pricing structure that may apply under certain conditions. Multiple price elements may exist for different times or usage patterns.
+      properties:
+        price_components:
+          type: array
+          description: List of individual price components that make up this pricing structure
+          items:
+            $ref: '#/components/schemas/PriceComponent'
+        restrictions:
+          type: object
+          description: Conditions under which this price element applies. Multiple restrictions can be combined.
+          properties:
+            start_time:
+              type: string
+              example: 08:30
+              description: Time of day when this price starts applying (local time at the charging location)
+            end_time:
+              type: string
+              example: '22:30'
+              description: Time of day when this price stops applying (local time at the charging location)
+            day_of_week:
+              type: string
+              enum:
+              - MONDAY
+              - TUESDAY
+              - WEDNESDAY
+              - THURSDAY
+              - FRIDAY
+              - SATURDAY
+              - SUNDAY
+              description: Days of the week when this price applies
+              example:
+              - MONDAY
+              - TUESDAY
+              - WEDNESDAY
+              - THURSDAY
+              - FRIDAY
+            min_duration:
+              type: number
+              example: 7200
+              description: Minimum charging duration in seconds before this price applies (e.g., 7200 means this price applies after 2 hours)
+            max_duration:
+              type: number
+              example: 10000
+              description: Maximum charging duration in seconds for this price to apply
+            min_kwh:
+              type: number
+              example: 2
+              description: Minimum energy consumption in kWh before this price applies
+            max_kwh:
+              type: number
+              example: 5
+              description: Maximum energy consumption in kWh for this price to apply
+            min_vehicle_soc:
+              type: number
+              example: 80
+              description: Minimum vehicle state of charge percentage for which this price element is valid
+            max_vehicle_soc:
+              type: number
+              example: 95
+              description: Maximum vehicle state of charge percentage for which this price element is valid
+            min_congestion_threshold:
+              type: number
+              example: 70
+              description: Minimum location utilization percentage for which this price element is valid
+            max_congestion_threshold:
+              type: number
+              example: 90
+              description: Maximum location utilization percentage for which this price element is valid
+    Capabilities:
+      type: string
+      enum:
+      - REMOTE_START_STOP_CAPABLE
+      - PLUG_AND_CHARGE_CAPABLE
+    RadiusRequest:
+      type: object
+      example:
+        filters:
+          locationStatuses:
+          - AVAILABLE
+          - CHARGING
+          - OCCUPIED
+          - RESERVED
+          - UNKNOWN
+          - OUTOFORDER
+          powerType: AC
+      properties:
+        filters:
+          $ref: '#/components/schemas/GeoFilters'
+          description: Filtering criteria for location selection.
+      description: Geosearch request centered on a point with radius-based criteria. The body is optional filter data only; use `{}` for a search without filters.
+    Aggregate:
+      type: object
+      required:
+      - coordinates
+      - count
+      properties:
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+          description: Aggregate center coordinates returned as strings.
+        count:
+          type: integer
+          description: Number of locations around this point.
+          minimum: 2
+    BusinessDetails:
+      required:
+      - id
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+          example: '881941'
+        name:
+          maxLength: 100
+          minLength: 0
+          type: string
+          example: Ebee Smart Technologies
+        hotline:
+          type: string
+          example: '+498944255071'
+        external_id:
+          type: string
+          example: DE*ABC
+    Evse:
+      required:
+      - uid
+      - status
+      - connectors
+      - capabilities
+      - last_updated
+      type: object
+      description: Electric Vehicle Supply Equipment (EVSE) represents a charging station unit that may have multiple connectors. Only one connector can be active at a time.
+      properties:
+        uid:
+          minLength: 0
+          type: string
+          example: 8rMCionje8s2LtheVGEK90mYnJdJe5OZd48ecF/w1StRJSodFFzfQ3GhJbYbxG0g3wFt7gLfnV3ulxmnoAzR4W/DFEMs63CndZpPK6L2aJG9qMC0Dp9OqeegGRXmiTOE
+        evse_id:
+          minLength: 1
+          type: string
+          example: +49*839*030*000074
+        physical_reference:
+          type: string
+          description: The 'physical reference' is used by some CPOs to represent the label printed on the charging station itself. For example, in a charging location, the physical references could be '1', '2', '3', '4', for the four different charging stations
+          example: '4'
+        status:
+          $ref: '#/components/schemas/ConnectorStatus'
+        connectors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Connector'
+        capabilities:
+          type: array
+          description: 'Values: `PLUG_AND_CHARGE_CAPABLE`, `REMOTE_START_STOP_CAPABLE`. New values in this array might be added without notice, so unknown values should be handled gracefully.'
+          items:
+            type: string
+          example:
+          - RESERVABLE
+          - PLUG_AND_CHARGE_CAPABLE
+          - PLUG_AND_CHARGE_CAPABLE
+        parking_restrictions:
+          type: array
+          description: Parking restrictions for this EVSE.
+          items:
+            $ref: '#/components/schemas/ParkingRestriction'
+          example:
+          - EV_ONLY
+          - CUSTOMERS
+        last_updated:
+          type: string
+          format: date-time
+          description: Time the EVSE data was last updated by the operator. Any EVSE data update changes it, so it does not show when the current `status` started. Use `status_since` from Get location live data for charging timing.
+    RectangleRequest:
+      type: object
+      example:
+        filters:
+          locationStatuses:
+          - AVAILABLE
+          - CHARGING
+          - OCCUPIED
+          - RESERVED
+          - UNKNOWN
+          - OUTOFORDER
+          powerType: AC
+      properties:
+        filters:
+          $ref: '#/components/schemas/GeoFilters'
+          description: Filtering criteria for location selection.
+      description: Geosearch request constrained to a rectangular area.
+    Coordinates:
+      type: object
+      description: Latitude and longitude values serialized as strings with fixed decimal precision. This schema is used in response payloads and in route-search points.
+      properties:
+        latitude:
+          pattern: -?[0-9]{1,2}\.[0-9]{6}
+          type: string
+          description: Latitude serialized as a string, for example `52.475911`.
+          example: '52.475911'
+        longitude:
+          pattern: -?[0-9]{1,3}\.[0-9]{6}
+          type: string
+          description: Longitude serialized as a string, for example `13.350794`.
+          example: '13.350794'
+    LocationLiveData:
+      required:
+      - charge_point_statuses
+      type: object
+      description: Live charging data of the EVSEs of a location.
+      properties:
+        charge_point_statuses:
+          type: object
+          description: Live data by EVSE `uid`. The keys match the EVSE `uid` values returned by Get location by id. Contains only EVSEs that are in use and have a known live status start time. Empty when no live data is available.
+          additionalProperties:
+            $ref: '#/components/schemas/ChargePointLiveData'
+    Connector:
+      required:
+      - id
+      - standard
+      - power_type
+      type: object
+      properties:
+        id:
+          minLength: 0
+          type: string
+          description: Unique identifier for this connector. Use this ID when starting charging sessions.
+          example: 8rMCionje8s2LtheVGEK90mYnJdJe5OZd48ecF/w1StRJSodFFzfQ3GhJbYbxG0g3wFt7gLfnV3ulxmnoAzR4W/DFEMs63CndZpPK6L2aJEM0D69tJVN05/1hZ1zxqZSJ9kBdNsmfryS0+gvjLNZvdF1pDHJuCTydsJX6vPZh7U=
+        standard:
+          $ref: '#/components/schemas/ConnectorStandard'
+          description: Physical connector type/standard (e.g., Type2, Combo, CHADEMO). Use `Combo` for CCS connectors.
+        power:
+          type: integer
+          description: Maximum power output in Watts. For AC chargers, this is typically between 3.7kW and 43kW. For DC chargers, typically between 50kW and 350kW.
+          example: 22000
+        power_type:
+          type: string
+          enum:
+          - AC_1_PHASE
+          - AC_3_PHASE
+          - DC
+          - AC
+          example: AC_3_PHASE
+        price:
+          description: Pricing information for this connector. Only available when retrieving a specific location.
+          type: object
+          properties:
+            id:
+              type: string
+              example: 4370769f30bd7927
+            description:
+              type: string
+              example: € 0.56/kWh, € 0.10/min (> 2 h)
+              description: Human-readable description of the pricing structure
+            currency:
+              type: string
+              description: Three-letter currency code ([ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format)
+              example: EUR
+            priceIncludesVat:
+              type: boolean
+              description: Indicates whether the price includes VAT or not (same meaning as for the CDR object)
+              example: 'true'
+            vatRate:
+              type: string
+              description: The VAT rate that is applied to the price (in case priceIncludesVat=true) or the VAT rate that should be applied to the price (in case priceIncludesVat=false)
+              example: '22'
+            elements:
+              type: array
+              description: Possible prices for that connector, depending on restrictions
+              items:
+                $ref: '#/components/schemas/PriceElement'
+        max_amperage:
+          description: Maximum current in Amperes that this connector can provide
+          type: number
+          example: 32
+        max_voltage:
+          description: Maximum voltage in Volts that this connector can provide
+          type: number
+          example: 400
+    OpeningTimes:
+      required:
+      - twentyfourseven
+      type: object
+      properties:
+        twentyfourseven:
+          type: boolean
+          example: false
+        regular_hours:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegularHours'
+        exceptional_openings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExceptionalPeriod'
+        exceptional_closings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExceptionalPeriod'
+    ExceptionalPeriod:
+      required:
+      - period_begin
+      - period_end
+      properties:
+        period_begin:
+          type: string
+          format: date-time
+        period_end:
+          type: string
+          format: date-time
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication

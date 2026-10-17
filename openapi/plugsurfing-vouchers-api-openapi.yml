@@ -1,0 +1,168 @@
+openapi: 3.2.0
+info:
+  title: Drive Vouchers API
+  version: 1.0.0
+  description: The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network. It enables you to manage users, charging keys, search for charging locations, handle payments, and control charging sessions.
+servers:
+- url: https://{environment}.plugsurfing.com
+  variables:
+    environment:
+      enum:
+      - drive-api-stage
+      default: drive-api-stage
+      description: API environment - use drive-api-stage for testing and drive-api for production
+tags:
+- name: Vouchers
+  description: Redeem vouchers
+paths:
+  /drive/v1/users/{userId}/vouchers/{code}/redeem:
+    post:
+      tags:
+      - Vouchers
+      summary: Redeem a voucher code
+      description: Redeems a voucher for the user and returns the product granted by the voucher campaign.
+      operationId: redeem
+      parameters:
+      - name: userId
+        in: path
+        description: userId
+        example: driveUser1
+        required: true
+        schema:
+          type: string
+      - name: code
+        in: path
+        description: Voucher Code
+        example: AABBCC11
+        required: true
+        schema:
+          type: string
+          pattern: ([a-zA-Z0-9_]+)
+      responses:
+        '200':
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              example:
+                type: PREPAID
+                amountMinorUnits: 1050
+                currencyCode: EUR
+        '400':
+          description: The campaign voucher code is expired, not started yet or exhausted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User or voucher not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '409':
+          description: The payment setup is not compatible with vouchers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+components:
+  schemas:
+    UserGroupProduct:
+      type: object
+      required:
+      - type
+      - groupId
+      properties:
+        type:
+          type: string
+          enum:
+          - USER_GROUP
+          description: Type of user-group product.
+        customerGroupId:
+          type: integer
+          description: Identifier of the customer group granted by the product.
+      description: Voucher product that grants access to a user group.
+    PrepaidProduct:
+      type: object
+      required:
+      - type
+      - amountMinorUnits
+      - currencyCode
+      properties:
+        type:
+          type: string
+          enum:
+          - PREPAID
+        amountMinorUnits:
+          type: integer
+          format: int64
+          description: Amount in currency minor units. In the example 10.5 Euro is represented as 1050.
+          example: 1050
+        currencyCode:
+          type: string
+          description: ISO 4217
+          example: EUR
+    InvalidRequestErrorResponse:
+      title: InvalidRequestErrorResponse
+      type: object
+      required:
+      - message
+      - fields
+      properties:
+        message:
+          type: string
+        fields:
+          type: array
+          items:
+            title: InvalidField
+            type: object
+            required:
+            - name
+            - message
+            - rejectedValue
+            properties:
+              name:
+                type: string
+              message:
+                type: string
+                example: UserId is not correct
+              rejectedValue:
+                type: string
+    Product:
+      oneOf:
+      - $ref: '#/components/schemas/PrepaidProduct'
+      - $ref: '#/components/schemas/UserGroupProduct'
+      discriminator:
+        propertyName: type
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      properties:
+        message:
+          type: string
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication

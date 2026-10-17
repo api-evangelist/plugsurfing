@@ -82,20 +82,336 @@ common:
   url: https://plugsurfing.com/legal/privacy-policy/
 apis:
 - name: Drive API
-  description: The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network.
+  description: >-
+    The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network.
   humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
   baseURL: https://{environment}.plugsurfing.com
   aid: plugsurfing:drive-api
-- aid: plugsurfing:drive-api-reference-api
-  name: Drive API Reference API
-  description: 'The Drive API provides comprehensive access to Plugsurfing''s charging infrastructure network. It enables you to manage users,
-    charging
-
-    keys, search for charging locations, handle payments, and control charging sessions.'
-  humanURL: https://developer.plugsurfing.com/llms.txt
+- aid: plugsurfing:plugsurfing-charging-key-orders-api
+  name: Plugsurfing Charging Key Orders API
+  description: Handle the ordering and fulfillment process for physical charging keys
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  tags:
+  - Charging Key Orders
   properties:
   - type: OpenAPI
-    url: openapi/_original/plugsurfing-reference-openapi.json
+    url: openapi/plugsurfing-charging-key-orders-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/plugsurfing-location-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-session-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-orders-product-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-charging-key-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-prepaid-balance-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-post-request-schema.json
+- aid: plugsurfing:plugsurfing-charging-keys-api
+  name: Plugsurfing Charging Keys API
+  description: >-
+    Manage physical and virtual charging keys including creation, activation, updates, and status management.
+    Essential for user access to charging stations.
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  tags:
+  - Charging Keys
+  properties:
+  - type: OpenAPI
+    url: openapi/plugsurfing-charging-keys-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/plugsurfing-location-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-session-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-orders-product-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-charging-key-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-prepaid-balance-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-post-request-schema.json
+- aid: plugsurfing:plugsurfing-drive-api-api
+  name: Plugsurfing Drive API
+  description: The Drive API API from Plugsurfing — 0 operation(s) for drive api.
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  tags:
+  - Drive API
+  properties:
+  - type: OpenAPI
+    url: openapi/plugsurfing-drive-api-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/plugsurfing-location-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-session-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-orders-product-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-charging-key-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-prepaid-balance-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-post-request-schema.json
+- aid: plugsurfing:plugsurfing-emp-charging-keys-api
+  name: Plugsurfing EMP Charging Keys API
+  description: E-Mobility Provider specific endpoints for managing charging keys
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  tags:
+  - EMP Charging Keys
+  properties:
+  - type: OpenAPI
+    url: openapi/plugsurfing-emp-charging-keys-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/plugsurfing-location-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-session-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-orders-product-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-charging-key-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-prepaid-balance-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-post-request-schema.json
+- aid: plugsurfing:plugsurfing-emp-fleets-api
+  name: Plugsurfing EMP Fleets API
+  description: E-Mobility Provider specific endpoints for managing fleets
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  tags:
+  - EMP Fleets
+  properties:
+  - type: OpenAPI
+    url: openapi/plugsurfing-emp-fleets-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/plugsurfing-location-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-session-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-orders-product-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-charging-key-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-prepaid-balance-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-post-request-schema.json
+- aid: plugsurfing:plugsurfing-emp-geosearch-api
+  name: Plugsurfing EMP Geosearch API
+  description: E-Mobility Provider specific endpoints for location search and information
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  tags:
+  - EMP Geosearch
+  properties:
+  - type: OpenAPI
+    url: openapi/plugsurfing-emp-geosearch-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/plugsurfing-location-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-session-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-orders-product-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-charging-key-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-prepaid-balance-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-post-request-schema.json
+- aid: plugsurfing:plugsurfing-emp-orders-api
+  name: Plugsurfing EMP Orders API
+  description: E-Mobility Provider specific endpoints for managing orders
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  tags:
+  - EMP Orders
+  properties:
+  - type: OpenAPI
+    url: openapi/plugsurfing-emp-orders-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/plugsurfing-location-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-session-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-orders-product-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-charging-key-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-prepaid-balance-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-post-request-schema.json
+- aid: plugsurfing:plugsurfing-emp-sessions-api
+  name: Plugsurfing EMP Sessions API
+  description: E-Mobility Provider specific endpoints for managing charging sessions
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  tags:
+  - EMP Sessions
+  properties:
+  - type: OpenAPI
+    url: openapi/plugsurfing-emp-sessions-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/plugsurfing-location-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-session-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-orders-product-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-charging-key-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-prepaid-balance-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-post-request-schema.json
+- aid: plugsurfing:plugsurfing-geosearch-api
+  name: Plugsurfing Geosearch API
+  description: Search and retrieve detailed information about charging locations and stations
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  tags:
+  - Geosearch
+  properties:
+  - type: OpenAPI
+    url: openapi/plugsurfing-geosearch-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/plugsurfing-location-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-session-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-orders-product-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-charging-key-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-prepaid-balance-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-post-request-schema.json
+- aid: plugsurfing:plugsurfing-payment-options-api
+  name: Plugsurfing Payment Options API
+  description: Manage payment methods and handle transaction processing for charging services
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  tags:
+  - Payment Options
+  properties:
+  - type: OpenAPI
+    url: openapi/plugsurfing-payment-options-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/plugsurfing-location-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-session-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-orders-product-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-charging-key-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-prepaid-balance-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-post-request-schema.json
+- aid: plugsurfing:plugsurfing-remote-charging-api
+  name: Plugsurfing Remote Charging API
+  description: >-
+    Control charging sessions remotely including starting and stopping sessions, and monitoring session
+    status
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  tags:
+  - Remote Charging
+  properties:
+  - type: OpenAPI
+    url: openapi/plugsurfing-remote-charging-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/plugsurfing-location-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-session-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-orders-product-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-charging-key-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-prepaid-balance-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-post-request-schema.json
+- aid: plugsurfing:plugsurfing-sessions-api
+  name: Plugsurfing Sessions API
+  description: >-
+    Access and manage charging session data including history, status, and detailed session information
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  tags:
+  - Sessions
+  properties:
+  - type: OpenAPI
+    url: openapi/plugsurfing-sessions-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/plugsurfing-location-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-session-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-orders-product-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-charging-key-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-prepaid-balance-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-post-request-schema.json
+- aid: plugsurfing:plugsurfing-user-groups-api
+  name: Plugsurfing User Groups API
+  description: Manage user group memberships
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  tags:
+  - User Groups
+  properties:
+  - type: OpenAPI
+    url: openapi/plugsurfing-user-groups-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/plugsurfing-location-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-session-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-orders-product-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-charging-key-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-prepaid-balance-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-post-request-schema.json
+- aid: plugsurfing:plugsurfing-users-api
+  name: Plugsurfing Users API
+  description: >-
+    Manage user accounts including creation, retrieval, updates, and deletion. Handles user-specific data
+    and preferences.
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  tags:
+  - Users
+  properties:
+  - type: OpenAPI
+    url: openapi/plugsurfing-users-api-openapi.yml
+  - type: JSONSchema
+    url: json-schema/plugsurfing-location-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-session-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-orders-product-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-charging-key-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-prepaid-balance-schema.json
+  - type: JSONSchema
+    url: json-schema/plugsurfing-emp-charging-key-post-request-schema.json
+- aid: plugsurfing:plugsurfing-vouchers-api
+  name: Plugsurfing Vouchers API
+  description: Redeem vouchers
+  humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
+  baseURL: https://{environment}.plugsurfing.com
+  tags:
+  - Vouchers
+  properties:
+  - type: OpenAPI
+    url: openapi/plugsurfing-vouchers-api-openapi.yml
   - type: JSONSchema
     url: json-schema/plugsurfing-location-schema.json
   - type: JSONSchema

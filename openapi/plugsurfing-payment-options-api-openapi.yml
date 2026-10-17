@@ -1,0 +1,523 @@
+openapi: 3.2.0
+info:
+  title: Drive Payment Options API
+  version: 1.0.0
+  description: The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network. It enables you to manage users, charging keys, search for charging locations, handle payments, and control charging sessions.
+servers:
+- url: https://{environment}.plugsurfing.com
+  variables:
+    environment:
+      enum:
+      - drive-api-stage
+      default: drive-api-stage
+      description: API environment - use drive-api-stage for testing and drive-api for production
+tags:
+- name: Payment Options
+  description: Manage payment methods and handle transaction processing for charging services
+paths:
+  /drive/v1/users/{userId}/payment-options:
+    get:
+      tags:
+      - Payment Options
+      summary: Get user's payment methods
+      description: Retrieves all payment methods associated with a user.
+      operationId: listPaymentOptions
+      parameters:
+      - name: userId
+        in: path
+        description: The unique identifier of the user whose payment methods should be retrieved
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf:
+                  - $ref: '#/components/schemas/CreditCardPaymentOption'
+              example:
+              - id: STRIPE-7844364278189399
+                paymentMethod: CREDIT_CARD
+                brand: visa
+                displayBrand: visa
+                countryCode: DE
+                expMonth: 12
+                expYear: 2025
+                last4: '1234'
+        '400':
+          description: Bad Request - returned when payment method does not exist or it's already attached to any user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+    post:
+      tags:
+      - Payment Options
+      summary: Add a new payment method
+      description: 'Adds a new payment method to a user''s account. Important notes:
+
+        - A user can only have one payment method at a time.'
+      operationId: createPaymentOption
+      parameters:
+      - name: userId
+        in: path
+        description: The unique identifier of the user to add the payment method for
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/CreateStripeCreditCardRequest'
+            example:
+              paymentMethodId: pm_1N9KPP2eZvKYlo2CY8E0x92p
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/CreditCardPaymentOption'
+              example:
+                id: STRIPE-7844364278189399
+                paymentMethod: CREDIT_CARD
+                brand: visa
+                displayBrand: visa
+                countryCode: DE
+                expMonth: 12
+                expYear: 2025
+                last4: '1234'
+        '400':
+          description: Bad Request - returned when payment method does not exist or it's already attached to any user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '409':
+          description: Conflict - returned if a payment option is already assigned to the user, and can be resolved by deleting the existing payment option first
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /drive/v1/users/{userId}/payment-options/stripe-setup-intent:
+    get:
+      tags:
+      - Payment Options
+      summary: Get Stripe SetupIntent to confirm a payment method
+      description: Creates and returns a Stripe SetupIntent client secret so the user can securely attach a new payment method.
+      operationId: createStripeSetupIntent
+      parameters:
+      - name: userId
+        in: path
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetupIntent'
+              example:
+                id: seti_3N9KQw2eZvKYlo2C1Wm0R8AB
+                clientSecret: seti_3N9KQw2eZvKYlo2C1Wm0R8AB_secret_example
+        '400':
+          description: Bad Request - returned when payment method does not exist or it's already attached to any user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /drive/v1/users/{userId}/payment-options/{id}:
+    delete:
+      tags:
+      - Payment Options
+      parameters:
+      - name: userId
+        in: path
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: Payment option id
+        example: STRIPE-7844364278189399
+        required: true
+        schema:
+          type: string
+      summary: Delete user's payment option
+      description: Removes a stored payment option from the specified user when the payment method is eligible for deletion.
+      operationId: deletePaymentOption
+      responses:
+        '204':
+          description: Payment option was deleted successfully
+        '400':
+          description: Bad Request - returned when payment method does not exist on this user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '403':
+          description: Specified payment option cannot be deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '404':
+          description: User or payment option not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /drive/v1/users/{userId}/prepaid:
+    get:
+      tags:
+      - Payment Options
+      summary: Get user's prepaid balance
+      description: Retrieves the current prepaid balance for a specific user. Returns a breakdown of balances with their sources (e.g. Credit, Voucher) and expiry dates, as well as a total balance.
+      operationId: listPrepaid
+      parameters:
+      - name: userId
+        in: path
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrepaidBalance'
+              example:
+                balanceTotal:
+                  amountMinorUnits: 1000
+                  currency: EUR
+                balances:
+                - expiryDate: '2024-12-31T23:59:59Z'
+                  amountMinorUnits: 1000
+                  currency: EUR
+                  source: Credit
+                  initialAmountMinorUnits: 1000
+        '404':
+          description: User not found or user has no prepaid balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /emp/v1/payment-options/stripe/publishable-api-key:
+    get:
+      summary: Get Stripe publishable API key
+      description: Returns the Stripe publishable API key to be used with your Stripe client-side code, when confirming `SetupIntent` or creating a `PaymentMethod`.
+      tags:
+      - Payment Options
+      operationId: getStripePublishableApiKey
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StripePublishableApiKeyResponse'
+              example:
+                stripePublishableApiKey: pk_test_F6rIsWTYKDnk2YQcGzw4foMvSVqwPqP7e7oZkgqSipPUNfio7aSei2fv2UMq8uaCS3ULDAn8djODcruhLVYXCPab6yczpPa9
+        '404':
+          description: Publishable API key is not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+components:
+  schemas:
+    PrepaidBalance:
+      type: object
+      required:
+      - balanceTotal
+      - balances
+      properties:
+        balanceTotal:
+          type: object
+          required:
+          - amountMinorUnits
+          - currency
+          description: The total prepaid balance across all sources and validity periods
+          properties:
+            amountMinorUnits:
+              type: integer
+              description: Total balance in minor currency units (e.g., cents for EUR/USD). For example, 1000 represents 10.00 in the specified currency.
+              example: 1000
+            currency:
+              type: string
+              description: Three-letter currency code (ISO 4217)
+              example: EUR
+        balances:
+          type: array
+          description: Detailed breakdown of prepaid balance by source and validity period
+          items:
+            type: object
+            properties:
+              expiryDate:
+                type: string
+                format: date-time
+                description: When this balance portion will expire. After this date, the amount will no longer be available for use.
+                example: '2024-12-31T23:59:59Z'
+              amountMinorUnits:
+                type: integer
+                description: Current balance amount in minor currency units
+                example: 1000
+              currency:
+                type: string
+                description: Three-letter currency code (ISO 4217)
+                example: EUR
+              source:
+                type: string
+                description: Origin of this balance portion (e.g., 'Credit' for topped-up amounts, 'Voucher' for promotional credits)
+                example: Credit
+              initialAmountMinorUnits:
+                type: integer
+                description: Original amount when this balance portion was added, in minor currency units
+                example: 1000
+      description: Current prepaid balance information for a user.
+    CreatePaymentOptionRequest:
+      type: object
+      description: Request payload to create a new payment option for a user.
+    SetupIntent:
+      type: object
+      properties:
+        id:
+          type: string
+          example: seti_123Abc456dEf789gHIjKLmNO
+          description: Stripe SetupIntent identifier.
+        clientSecret:
+          type: string
+          example: seti_123Abc456dEf789gHIjKLmNO_secret_ABC123DEF456ghi789JklMNopQRStUV
+          description: Client secret used to complete SetupIntent confirmation on the client.
+      description: Stripe SetupIntent data used to confirm and attach a payment method.
+    CreateStripeCreditCardRequest:
+      allOf:
+      - $ref: '#/components/schemas/CreatePaymentOptionRequest'
+      - type: object
+        required:
+        - paymentMethodId
+        properties:
+          paymentMethodId:
+            type: string
+            description: Stripe provided payment method id
+            example: pm_321aSdF567gHij
+      description: Stripe-specific payload to register a credit card payment method.
+    InvalidRequestErrorResponse:
+      title: InvalidRequestErrorResponse
+      type: object
+      required:
+      - message
+      - fields
+      properties:
+        message:
+          type: string
+        fields:
+          type: array
+          items:
+            title: InvalidField
+            type: object
+            required:
+            - name
+            - message
+            - rejectedValue
+            properties:
+              name:
+                type: string
+              message:
+                type: string
+                example: UserId is not correct
+              rejectedValue:
+                type: string
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      properties:
+        message:
+          type: string
+    StripePublishableApiKeyResponse:
+      type: object
+      properties:
+        stripePublishableApiKey:
+          type: string
+          description: This publishable API key will be used to integrate with Stripe from client-side code.
+          example: pk_test_F6rIsWTYKDnk2YQcGzw4foMvSVqwPqP7e7oZkgqSipPUNfio7aSei2fv2UMq8uaCS3ULDAn8djODcruhLVYXCPab6yczpPa9
+    CreditCardPaymentOption:
+      type: object
+      required:
+      - id
+      - paymentMethod
+      - brand
+      - countryCode
+      - expMonth
+      - expYear
+      - last4
+      properties:
+        id:
+          type: string
+          example: STRIPE-7844364278189399
+          description: Unique identifier for this payment method in our system
+        paymentMethod:
+          type: string
+          enum:
+          - CREDIT_CARD
+          example: CREDIT_CARD
+          description: Payment method provider/type.
+        brand:
+          type: string
+          example: visa
+          description: Card network brand.
+        displayBrand:
+          type: string
+          description: 'The brand to use when displaying the card, this accounts for customer''s brand choice on dual-branded cards. Stripe documentation: [EU regulation: Co-badged cards compliance](https://docs.stripe.com/co-badged-cards-compliance) & [Stripe PaymentMethod.card.display_brand](https://docs.stripe.com/api/payment_methods/object#payment_method_object-card-display_brand)'
+          example: visa
+        countryCode:
+          type: string
+          description: ISO 3166-1 alpha-2
+          example: DE
+        expMonth:
+          type: integer
+          format: int32
+          example: 12
+          description: Card expiration month (1-12).
+        expYear:
+          type: integer
+          format: int32
+          example: 2025
+          description: Card expiration year (YYYY).
+        last4:
+          type: string
+          example: '1234'
+          description: Last four digits of the card number.
+      description: Stored credit card payment option details.
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication

@@ -1,0 +1,557 @@
+openapi: 3.2.0
+info:
+  title: Drive EMP Charging Keys API
+  version: 1.0.0
+  description: The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network. It enables you to manage users, charging keys, search for charging locations, handle payments, and control charging sessions.
+servers:
+- url: https://{environment}.plugsurfing.com
+  variables:
+    environment:
+      enum:
+      - drive-api-stage
+      default: drive-api-stage
+      description: API environment - use drive-api-stage for testing and drive-api for production
+tags:
+- name: EMP Charging Keys
+  description: E-Mobility Provider specific endpoints for managing charging keys
+paths:
+  /emp/v1/charging-keys:
+    get:
+      tags:
+      - EMP Charging Keys
+      summary: Get charging keys
+      description: Fetches charging keys belonging to a given fleet, or all charging keys if not fleet is specified.
+      operationId: listEmpChargingKeys
+      parameters:
+      - name: fleetId
+        in: query
+        description: Optional - the id of the fleet you want to filter charging keys on. If not id is specified, it will return all charging keys
+        required: false
+        schema:
+          type: string
+      - name: cursor
+        in: query
+        description: Optional - pass cursor from previous response body to get the next page.
+        required: false
+        schema:
+          type: string
+      - name: page_size
+        in: query
+        description: Optional - used to set page size value
+        required: false
+        schema:
+          type: number
+          minimum: 10
+          maximum: 500
+          default: 100
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  keys:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EmpChargingKeyResponse'
+                  cursor:
+                    type: string
+              example:
+                keys:
+                - name: SE6F1K2C3
+                  keyIdentifier: 3633e0e0
+                  validTo: '2022-01-24T11:25:54.210Z'
+                  fleetId: y1nNLJqb7m
+                  contractId: DE-9FS-C045DS363-E
+                  visualNumber: '6285629402937'
+                  enabled: true
+                  whitelist: NEVER
+                cursor: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+    post:
+      tags:
+      - EMP Charging Keys
+      summary: Create a charging key
+      description: Creates a charging key with given key identifier, contract id and visual number.
+      operationId: createEmpChargingKey
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmpChargingKeyPostRequest'
+            example:
+              name: SE6F1K2C3
+              keyIdentifier: e0e03336
+              contractId: DE-9FS-C045DS363-E
+              visualNumber: DE-9FS-C045DS363-E
+              enabled: true
+              whitelist: NEVER
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpChargingKeyResponse'
+              example:
+                name: SE6F1K2C3
+                keyIdentifier: 3633e0e0
+                validTo: '2022-01-24T11:25:54.210Z'
+                fleetId: y1nNLJqb7m
+                contractId: DE-9FS-C045DS363-E
+                visualNumber: '6285629402937'
+                enabled: true
+                whitelist: NEVER
+        '400':
+          description: Provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '409':
+          description: Charging key already activated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /emp/v1/charging-keys/{keyIdentifier}/rename:
+    put:
+      tags:
+      - EMP Charging Keys
+      summary: Rename a charging key
+      description: Renames a charging key given its key identifier
+      operationId: renameEmpChargingKey
+      parameters:
+      - name: keyIdentifier
+        in: path
+        description: keyIdentifier provided when creating the charging key
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmpChargingKeyRenameRequest'
+            example:
+              newName: SE6F1K2C3
+        required: true
+      responses:
+        '200':
+          description: Succeed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpChargingKeyResponse'
+              example:
+                name: SE6F1K2C3
+                keyIdentifier: 3633e0e0
+                validTo: '2022-01-24T11:25:54.210Z'
+                fleetId: y1nNLJqb7m
+                contractId: DE-9FS-C045DS363-E
+                visualNumber: '6285629402937'
+                enabled: true
+                whitelist: NEVER
+        '400':
+          description: Provided body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /emp/v1/charging-keys/{keyIdentifier}/enable:
+    put:
+      tags:
+      - EMP Charging Keys
+      summary: Enable charging key
+      description: Enables a charging key given its key identifier. The charging key needs to exist, otherwise a 404 HTTP error is returned
+      operationId: enableEmpChargingKey
+      parameters:
+      - name: keyIdentifier
+        in: path
+        description: keyIdentifier provided when creating the charging key
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpChargingKeyResponse'
+              example:
+                name: SE6F1K2C3
+                keyIdentifier: 3633e0e0
+                validTo: '2022-01-24T11:25:54.210Z'
+                fleetId: y1nNLJqb7m
+                contractId: DE-9FS-C045DS363-E
+                visualNumber: '6285629402937'
+                enabled: true
+                whitelist: NEVER
+        '403':
+          description: Forbidden. You have no access to this charging key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '404':
+          description: Charging key not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /emp/v1/charging-keys/{keyIdentifier}/disable:
+    put:
+      tags:
+      - EMP Charging Keys
+      summary: Disable charging key
+      description: 'Disables a charging key given its keyIdentifier. It will immediately make Plugsurfing reject all charging session requests made with this key. The charging key needs to exist, otherwise a 404 HTTP error is returned. Note: Some CPOs store whitelisted keys, so in some rare cases it might take a bit longer time until charging is rejected.'
+      operationId: disableEmpChargingKey
+      parameters:
+      - name: keyIdentifier
+        in: path
+        description: keyIdentifier provided when creating charging key
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpChargingKeyResponse'
+              example:
+                name: SE6F1K2C3
+                keyIdentifier: 3633e0e0
+                validTo: '2022-01-24T11:25:54.210Z'
+                fleetId: y1nNLJqb7m
+                contractId: DE-9FS-C045DS363-E
+                visualNumber: '6285629402937'
+                enabled: true
+                whitelist: NEVER
+        '403':
+          description: Forbidden. You have no access to this charging key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '404':
+          description: Charging key not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /emp/v1/charging-keys/{keyIdentifier}/transfer:
+    put:
+      tags:
+      - EMP Charging Keys
+      summary: Transfer a charging key
+      description: 'Transfers a charging key from its current fleet to another existing fleet.
+
+
+        **Business rules:**
+
+        - Only charging keys that currently belong to a fleet can be transferred.
+
+        - The target fleet must belong to the same EMP parent as the source fleet.
+
+        - The target fleet must already have an external payment option configured.
+
+        - Transferring to the same fleet is idempotent and returns `200 OK`.'
+      operationId: transferEmpChargingKey
+      parameters:
+      - name: keyIdentifier
+        in: path
+        description: keyIdentifier provided when creating the charging key
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmpChargingKeyTransferRequest'
+            example:
+              targetFleetId: a2mPQRst8x
+        required: true
+      responses:
+        '200':
+          description: Charging key transferred successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpChargingKeyResponse'
+              example:
+                name: SE6F1K2C3
+                keyIdentifier: 3633e0e0
+                validTo: '2022-01-24T11:25:54.210Z'
+                fleetId: a2mPQRst8x
+                contractId: DE-9FS-C045DS363-E
+                visualNumber: '6285629402937'
+                enabled: true
+                whitelist: NEVER
+        '400':
+          description: 'Bad request. Possible causes:
+
+            - Missing or invalid request body.
+
+            - Charging key does not belong to a fleet (`Charging key must belong to a fleet`).
+
+            - Target fleet has no external payment option (`Target fleet must have an external payment option`).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Charging key must belong to a fleet
+        '403':
+          description: Forbidden. The target fleet belongs to a different EMP parent than the source fleet.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Target fleet belongs to a different EMP
+        '404':
+          description: Source charging key or target fleet not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+components:
+  schemas:
+    DriveApiChargingKeyWhitelistType:
+      type: string
+      enum:
+      - ALLOWED_OFFLINE
+      - NEVER
+      description: 'Defines when authorization of a charging key by the CPO is allowed.
+
+        ALLOWED_OFFLINE: CPO should use realtime authorization. But when the CPO cannot get a response from the eMSP, the CPO shall allow the charging key to be used.
+
+        NEVER: Only realtime authorization is allowed. CPO shall always send a realtime authorization for any use of this charging key to the MSP.'
+    EmpChargingKeyResponse:
+      properties:
+        name:
+          type: string
+          example: SE6F1K2C3
+          description: Name of the Charging key
+        keyIdentifier:
+          type: string
+          example: 3633e0e0
+          description: Charging key identifier in hexadecimal, little-endian format with usually 8 or 14 characters.
+        validTo:
+          type: string
+          format: date-time
+          example: '2022-01-24T11:25:54.210Z'
+          description: UTC timestamp when the charging key expires.
+        fleetId:
+          type: string
+          example: y1nNLJqb7m
+          description: Fleet id
+        contractId:
+          type: string
+          example: DE-9FS-C045DS363-E
+          description: Charging key contract id
+        visualNumber:
+          type: string
+          example: '6285629402937'
+          description: Identifier printed on the physical key
+        enabled:
+          type: boolean
+          example: true
+          description: Charging key is enabled or disabled
+        whitelist:
+          $ref: '#/components/schemas/DriveApiChargingKeyWhitelistType'
+          description: 'Defines whether the CPO may allow a session for this charging key when it cannot get a response from the EMP, or must always rely on realtime authorization from the EMP. Possible values: ALLOWED_OFFLINE, NEVER.'
+          example: NEVER
+      description: EMP charging key details returned by key management endpoints.
+    EmpChargingKeyRenameRequest:
+      type: object
+      required:
+      - newName
+      properties:
+        newName:
+          type: string
+          example: SE6F1K2C3
+          description: New name of the Charging key
+      description: Request payload to rename an EMP charging key.
+    EmpChargingKeyTransferRequest:
+      type: object
+      required:
+      - targetFleetId
+      properties:
+        targetFleetId:
+          type: string
+          example: y1nNLJqb7m
+          description: Customer-facing external ID of the fleet to transfer the charging key into. The target fleet must exist, belong to the same EMP parent as the source fleet, and already have an external payment option configured.
+      description: Request payload to transfer an EMP charging key to another fleet.
+    InvalidRequestErrorResponse:
+      title: InvalidRequestErrorResponse
+      type: object
+      required:
+      - message
+      - fields
+      properties:
+        message:
+          type: string
+        fields:
+          type: array
+          items:
+            title: InvalidField
+            type: object
+            required:
+            - name
+            - message
+            - rejectedValue
+            properties:
+              name:
+                type: string
+              message:
+                type: string
+                example: UserId is not correct
+              rejectedValue:
+                type: string
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      properties:
+        message:
+          type: string
+    EmpChargingKeyPostRequest:
+      type: object
+      required:
+      - keyIdentifier
+      - contractId
+      - visualNumber
+      properties:
+        name:
+          type: string
+          example: SE6F1K2C3
+          description: Name of the Charging key
+        keyIdentifier:
+          type: string
+          example: e0e03336
+          description: Charging key identifier in hexadecimal, little-endian format with usually 8 or 14 characters.
+        fleetId:
+          type: string
+          example: y1nNLJqb7m
+          description: Fleet id
+        fleetName:
+          type: string
+          example: Fleet Inc.
+          description: The name associated to the fleetId
+        contractId:
+          type: string
+          example: DE-9FS-C045DS363-E
+          description: Charging key contract id
+        visualNumber:
+          type: string
+          example: DE-9FS-C045DS363-E
+          description: Identifier printed on the physical key
+        enabled:
+          type: boolean
+          example: true
+          description: Indicates if the new charging key should be enabled or disabled.
+          default: true
+        whitelist:
+          $ref: '#/components/schemas/DriveApiChargingKeyWhitelistType'
+          description: 'Defines whether the CPO may allow a session for this charging key when it cannot get a response from the EMP, or must always rely on realtime authorization from the EMP. Possible values: ALLOWED_OFFLINE, NEVER.'
+          example: NEVER
+      example:
+        name: SE6F1K2C3
+        keyIdentifier: e0e03336
+        contractId: DE-9FS-C045DS363-E
+        visualNumber: DE-9FS-C045DS363-E
+        enabled: true
+        whitelist: NEVER
+      description: Request payload to create an EMP charging key.
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication

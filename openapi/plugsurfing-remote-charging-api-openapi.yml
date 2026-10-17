@@ -1,0 +1,224 @@
+openapi: 3.2.0
+info:
+  title: Drive Remote Charging API
+  version: 1.0.0
+  description: The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network. It enables you to manage users, charging keys, search for charging locations, handle payments, and control charging sessions.
+servers:
+- url: https://{environment}.plugsurfing.com
+  variables:
+    environment:
+      enum:
+      - drive-api-stage
+      default: drive-api-stage
+      description: API environment - use drive-api-stage for testing and drive-api for production
+tags:
+- name: Remote Charging
+  description: Control charging sessions remotely including starting and stopping sessions, and monitoring session status
+paths:
+  /drive/v1/users/{userId}/sessions/start:
+    post:
+      tags:
+      - Remote Charging
+      summary: Start a remote charging session
+      operationId: startRemoteSession
+      description: 'Start a remote charging session. Important implementation details:
+
+        1. Only chargers with REMOTE_START_STOP_CAPABLE capability can be used
+
+        2. Allow up to 2 minutes for session to transition from WAITING_TO_START to STARTED
+
+        3. Wait at least 1 minute before retrying failed starts
+
+        4. Multiple ongoing sessions are possible
+
+        5. Subsequent start requests within 60 seconds on same connector are blocked
+
+        6. Session events will notify about session status changes
+
+        7. If a user has `CREDIT_CARD` payment method, and 3DS challenge mode is set to `CHALLENGE`, then `threeDSClientSecret` might be present instead of `sessionId`, which your frontend needs to prompt the user to sign. After the user successfully signs the challenge, do a second start request!'
+      parameters:
+      - name: userId
+        in: path
+        description: The unique identifier of the user who will own the charging session
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionStartRequest'
+            example:
+              connectorId: O9UXK+YI5Q6i0FoI4qHwcA==
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionStartResponse'
+              example:
+                sessionId: AAdmD55q8Vz
+                threeDSClientSecret: pi_3MtwBwLkdIwHu8ix28v3tqPa_secret_YrKJUkribcBjcG7HVhfZluoGH
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '403':
+          description: Forbidden. The user is not allowed to charge, or the connector won't allow remote charging.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /drive/v1/users/{userId}/sessions/{sessionId}/stop:
+    post:
+      tags:
+      - Remote Charging
+      summary: Stop a remote charging session
+      operationId: stopRemoteSession
+      description: 'Stop a remote charging session. Only sessions started remotely (chargingKeyType=virtual) can be stopped remotely. Important implementation details:
+
+        1. Session may be stopped locally even if started remotely
+
+        2. Events like SESSION_STOPPED or SESSION_COMPLETED may be received without calling stop
+
+        3. If stop request fails, allow retrying after a few minutes
+
+        4. If session stays in STOP_FAILED, allow starting new session'
+      parameters:
+      - name: userId
+        in: path
+        description: The unique identifier of the user who owns the charging session
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      - name: sessionId
+        in: path
+        description: The unique identifier of the charging session to stop
+        required: true
+        example: AAdmD55q8Vz
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+components:
+  schemas:
+    SessionStartResponse:
+      type: object
+      description: SessionId will always be present, unless CREDIT_CARD reservation for a user is required during authentication, then either sessionId or threeDSClientSecret will be present.
+      properties:
+        sessionId:
+          type: string
+          description: This session id should be stored and used in other endpoints.
+          example: AAdmD55q8Vz
+        threeDSClientSecret:
+          type: string
+          description: Will only be available for users with CREDIT_CARD payment methods, when CHALLENGE mode has been enabled for 3DS challenges. The 3DS client secret can be used to complete a payment from your frontend. If not present, no user authentication is required to start the session.
+          example: pi_3MtwBwLkdIwHu8ix28v3tqPa_secret_YrKJUkribcBjcG7HVhfZluoGH
+    InvalidRequestErrorResponse:
+      title: InvalidRequestErrorResponse
+      type: object
+      required:
+      - message
+      - fields
+      properties:
+        message:
+          type: string
+        fields:
+          type: array
+          items:
+            title: InvalidField
+            type: object
+            required:
+            - name
+            - message
+            - rejectedValue
+            properties:
+              name:
+                type: string
+              message:
+                type: string
+                example: UserId is not correct
+              rejectedValue:
+                type: string
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      properties:
+        message:
+          type: string
+    SessionStartRequest:
+      type: object
+      required:
+      - connectorId
+      properties:
+        connectorId:
+          type: string
+          example: O9UXK+YI5Q6i0FoI4qHwcA==
+          description: Connector identifier to start charging on.
+      description: Request payload to start a charging session remotely.
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication

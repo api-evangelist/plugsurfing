@@ -1,0 +1,408 @@
+openapi: 3.2.0
+info:
+  title: Drive Users API
+  version: 1.0.0
+  description: The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network. It enables you to manage users, charging keys, search for charging locations, handle payments, and control charging sessions.
+servers:
+- url: https://{environment}.plugsurfing.com
+  variables:
+    environment:
+      enum:
+      - drive-api-stage
+      default: drive-api-stage
+      description: API environment - use drive-api-stage for testing and drive-api for production
+tags:
+- name: Users
+  description: Manage user accounts including creation, retrieval, updates, and deletion. Handles user-specific data and preferences.
+paths:
+  /drive/v1/users:
+    post:
+      tags:
+      - Users
+      summary: Create user
+      operationId: createUser
+      description: Only the `id` field is required (any string is accepted) when you are the Merchant on Record. If Plugsurfing is the Merchant on Record the `email` field is mandatory as well. Use the same user ID from your system for consistency
+      requestBody:
+        description: request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+            example:
+              email: driver@example.com
+              language: en
+        required: true
+      responses:
+        '201':
+          description: Created
+          content: {}
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '409':
+          description: Conflict - a user with this id or email already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+  /drive/v1/users/{userId}:
+    get:
+      tags:
+      - Users
+      summary: Read user details
+      operationId: getUser
+      description: Getting user data based on passed userId
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+              example:
+                id: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+                email: driver@example.com
+                language: en
+                vatNumber: SE123456789001
+                billingAddress:
+                  line1: Kungsgatan 1
+                  city: Stockholm
+                  postalCode: '11143'
+                  countryCode: SE
+                userGroups: []
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+    patch:
+      tags:
+      - Users
+      summary: Update user details
+      operationId: updateUser
+      description: This endpoints lets you update a given user's email, VAT number and billing address.
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Email address must be unique
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUser'
+            example:
+              email: driver.updated@example.com
+              vatNumber: SE123456789001
+              billingAddress:
+                line1: Kungsgatan 1
+                city: Stockholm
+                postalCode: '11143'
+                countryCode: SE
+        required: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '409':
+          description: Conflict - this email is already taken.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+    delete:
+      tags:
+      - Users
+      summary: Remove user
+      operationId: deleteUser
+      description: 'Disables all charging keys of the user immediately and schedules the user''s deletion for 30 days later. This delay ensures that late-arriving Charging Detail Records (CDRs) can still be linked to the user. Note: If Plugsurfing handles payments, users with outstanding debt cannot be deleted.'
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '409':
+          description: Conflict - user has debt or another reason blocks deleting it.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      security:
+      - ApiKeyAuth: []
+components:
+  schemas:
+    CreateUser:
+      required:
+      - id
+      type: object
+      properties:
+        id:
+          type: string
+          description: User id, used later to access user info. Max. length is 255. Allowed characters are ASCII letters, numbers and '-', '.', '_', '~'
+          example: b5d00e95-b998-4a33-9210-84777f4cb4f9
+        email:
+          type: string
+          description: The email format is validated, but it is not verified by sending an email. This field is mandatory when Plugsurfing is the Merchant on Record.
+      description: Request payload to create a drive user.
+    UserGroup:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          example: aGnOerO87e
+          description: Unique identifier of the user group.
+        memberSince:
+          type: string
+          format: date-time
+          example: '2023-01-30T10:00:00.111Z'
+          description: UTC timestamp when the user joined the group.
+      description: Membership information for a user group.
+    UpdateUser:
+      type: object
+      properties:
+        email:
+          type: string
+          description: This email format is validated, but it is not verified by sending an email.
+        vatNumber:
+          type: string
+          description: 12 character VAT number.
+          example: SE123456789012
+        billingAddress:
+          type: object
+          properties:
+            companyName:
+              type: string
+              example: My Company Inc.
+            firstName:
+              type: string
+              example: Anders
+            lastName:
+              type: string
+              example: Andersson
+            addressLine1:
+              type: string
+              example: Charging road 1
+            addressLine2:
+              type: string
+            postalCode:
+              type: string
+              example: '12345'
+            city:
+              type: string
+              example: Berlin
+            country:
+              type: string
+              example: Germany
+            billingEmail:
+              type: string
+              example: invoice@mycompany.com
+            additionalInformation:
+              type: string
+          description: Billing address associated with the user account.
+      description: Request payload to update user profile and billing details.
+    InvalidRequestErrorResponse:
+      title: InvalidRequestErrorResponse
+      type: object
+      required:
+      - message
+      - fields
+      properties:
+        message:
+          type: string
+        fields:
+          type: array
+          items:
+            title: InvalidField
+            type: object
+            required:
+            - name
+            - message
+            - rejectedValue
+            properties:
+              name:
+                type: string
+              message:
+                type: string
+                example: UserId is not correct
+              rejectedValue:
+                type: string
+    UserInfo:
+      type: object
+      required:
+      - id
+      - hasDebt
+      properties:
+        id:
+          type: string
+          description: User identifier
+          example: b5d00e95-b998-4a33-9210-84777f4cb4f9
+        email:
+          type: string
+          example: john.smith@plugsurfing.com
+          description: User email address.
+        vatNumber:
+          type: string
+          description: VAT number associated with the user.
+        billingAddress:
+          type: object
+          properties:
+            name:
+              type: string
+              example: John Smith
+            companyName:
+              type: string
+              example: MyCompany
+            firstName:
+              type: string
+              example: John
+            lastName:
+              type: string
+              example: Smith
+            addressLine1:
+              type: string
+              example: Charger road 1
+            addressLine2:
+              type: string
+              example: Door 1
+            postalCode:
+              type: string
+              example: '12345'
+            city:
+              type: string
+              example: Berlin
+            country:
+              type: string
+              example: Germany
+            billingEmail:
+              type: string
+              example: invoice@mycompany.com
+            additionalInformation:
+              type: string
+          description: Billing address associated with the user.
+        hasDebt:
+          type: boolean
+          description: true if any of the sessions payments failed. (Relevant only if clearing is done by Plugsurfing)
+          example: false
+        userGroups:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserGroup'
+          description: User groups the user currently belongs to.
+      description: User profile details returned by user management endpoints.
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      properties:
+        message:
+          type: string
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication

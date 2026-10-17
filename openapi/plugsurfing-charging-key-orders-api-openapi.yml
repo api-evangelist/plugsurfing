@@ -1,0 +1,519 @@
+openapi: 3.2.0
+info:
+  title: Drive Charging Key Orders API
+  version: 1.0.0
+  description: The Drive API provides comprehensive access to Plugsurfing's charging infrastructure network. It enables you to manage users, charging keys, search for charging locations, handle payments, and control charging sessions.
+servers:
+- url: https://{environment}.plugsurfing.com
+  variables:
+    environment:
+      enum:
+      - drive-api-stage
+      default: drive-api-stage
+      description: API environment - use drive-api-stage for testing and drive-api for production
+tags:
+- name: Charging Key Orders
+  description: Handle the ordering and fulfillment process for physical charging keys
+paths:
+  /drive/v1/users/{userId}/charging-keys/orders:
+    post:
+      tags:
+      - Charging Key Orders
+      summary: Create charging key order
+      description: Orders a charging key for the given user. Requires the product to be configured on Plugsurfing side. Therefore, we ask you to reach out to us before using it.
+      operationId: createChargingKeyOrder
+      parameters:
+      - name: userId
+        in: path
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChargingKeyOrderRequest'
+            example:
+              productId: physical-rfid-key
+              quantity: 1
+              address:
+                line1: Kungsgatan 1
+                line2: Floor 2
+                city: Stockholm
+                postalCode: '11143'
+                countryCode: SE
+                firstName: Olivier
+                lastName: Payen
+                company: Plugsurfing
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChargingKeyOrderResponse'
+              example:
+                id: 9aE20Rmj0v
+                state: ORDER_PLACED
+                clientSecret: pi_1J5J9v3sZvKYlo2C5J9v2eZv
+        '400':
+          description: The provided query parameters, route parameters or body is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '429':
+          description: Too many requests — a given user can't order more than 1 card every 5 minutes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      deprecated: false
+      security:
+      - ApiKeyAuth: []
+    get:
+      tags:
+      - Charging Key Orders
+      summary: Get list of charging key orders
+      description: Returns the list of ordered charging keys by a given user.
+      operationId: listChargingKeyOrders
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChargingKeyOrdersListResponse'
+              example:
+              - id: vrj82A9EpJ
+                created: '2022-04-07T11:30:57.000Z'
+                updated: '2022-04-07T11:30:57.000Z'
+                address:
+                  companyName: Plusurfing
+                  firstName: Luck
+                  lastName: Thomson
+                  addressLine1: Rättarvägen 3
+                  addressLine2: Rättarvägen 3
+                  postalCode: 12345
+                  city: Solna
+                  country: Sweden
+                quantity: 1
+                currency: SEK
+                priceMinorInclVat: 1010
+                state: ORDER_PLACED
+                hasReceipt: false
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      deprecated: false
+      security:
+      - ApiKeyAuth: []
+  /drive/v1/users/{userId}/charging-keys/orders/{orderId}/receipt:
+    get:
+      tags:
+      - Charging Key Orders
+      summary: Get order receipt URL
+      description: Returns an absolute URL to the order's receipt. The receipt will be in PDF format.
+      operationId: getChargingKeyOrderReceiptUrl
+      parameters:
+      - name: userId
+        in: path
+        example: 6f36dc9b-446f-462b-aae0-95c7636d5c6c
+        required: true
+        schema:
+          type: string
+      - name: orderId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChargingKeyOrderReceiptResponse'
+              example:
+                url: string
+        '400':
+          description: Provided path parameter, is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '404':
+          description: Receipt not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      deprecated: false
+      security:
+      - ApiKeyAuth: []
+  /drive/v1/charging-keys/orders/configuration:
+    get:
+      tags:
+      - Charging Key Orders
+      summary: Get pricing information per country
+      description: Returns the pricing information for ordering charging keys per country. Each country has to be set up manually for your organization in order for it to show up here.
+      operationId: getChargingKeyOrderConfiguration
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChargingKeyConfigurationResponse'
+              example:
+                countries:
+                - country: SE
+                  currency: SEK
+                  priceMinorInclVat: 1
+                  vat: 1
+        '404':
+          description: No pricing found for organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestErrorResponse'
+              example:
+                message: Invalid request payload
+                details:
+                - field X is required
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Resource not found
+      deprecated: false
+      security:
+      - ApiKeyAuth: []
+components:
+  schemas:
+    ChargingKeyOrderAddressRequest:
+      title: ChargingKeyOrderAddressRequest
+      type: object
+      required:
+      - addressLine1
+      - postalCode
+      - city
+      - country
+      properties:
+        companyName:
+          type: string
+          maxLength: 130
+          example: Plugsurfing
+          description: Company name for business delivery addresses.
+        firstName:
+          type: string
+          maxLength: 130
+          example: John
+          description: Recipient first name.
+        lastName:
+          type: string
+          maxLength: 130
+          example: Drive
+          description: Recipient last name.
+        addressLine1:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Automation road 1
+          description: Primary street address line.
+        addressLine2:
+          type: string
+          example: Park spot 1
+          description: Secondary address line such as apartment or suite.
+        postalCode:
+          type: string
+          minLength: 1
+          maxLength: 10
+          example: EV1234
+          description: Postal or ZIP code.
+        city:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: Spark City
+          description: City name.
+        country:
+          type: string
+          minLength: 1
+          maxLength: 41
+          example: SE
+          description: Country code in ISO 3166-1 alpha-2 format.
+      description: Shipping address used when placing a charging key order.
+    ChargingKeyConfigurationResponse:
+      type: object
+      properties:
+        countries:
+          type: array
+          items:
+            properties:
+              country:
+                type: string
+                example: SE
+                description: The two-letter code of the country
+              currency:
+                type: string
+                example: SEK
+                description: The three-letter currency code
+              priceMinorInclVat:
+                type: integer
+                format: int32
+                description: 'Price in minor units (example: in Swedish Kronor, a value of 1010 means 10.10 SEK)'
+              vat:
+                type: integer
+                format: int32
+                description: 'VAT in percent (example: 25 means 25% VAT)'
+          description: Countries where charging key ordering is supported.
+      description: Available configuration values for charging key ordering.
+    ChargingKeyOrderRequest:
+      title: ChargingKeyOrderRequest
+      description: This endpoint allows you to order a charging key for a specific user. To prevent duplicate orders, ordering charging keys for a single user is throttled to 1 order every 5 minutes. This is a safety measure to avoid accidental double-clicks on the order button, preventing the user from being charged twice. If the user exceeds this limit, a `429 - Too Many Requests` HTTP response will be returned.
+      type: object
+      required:
+      - address
+      - taxationCountry
+      properties:
+        address:
+          $ref: '#/components/schemas/ChargingKeyOrderAddressRequest'
+          description: Shipping address for the ordered charging key.
+        taxationCountry:
+          type: string
+          maxLength: 2
+          example: SE
+          description: Two-letter taxation country code
+        paymentOptionId:
+          type: string
+          example: STRIPE-6738556949187507
+          description: Stripe payment option id. If not passed, a default one is used.
+      example:
+        taxationCountry: SE
+        paymentOptionId: STRIPE-6738556949187507
+        address:
+          addressLine1: Test, don't send
+          postalCode: 01-111
+          city: Test
+          country: PL
+          firstName: Will
+          lastName: Smith
+          companyName: Plugsurfing
+    ChargingKeyOrderReceiptResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          description: HTTPS URL where the charging key order receipt can be downloaded.
+      description: Response containing the receipt URL for a charging key order.
+    OrderState:
+      type: string
+      enum:
+      - ORDER_FILLED
+      - ORDER_CANCELLED
+      - ORDER_PROCESSING
+      - ORDER_WAITING_3DS
+      - ORDER_PAYMENT_FAILED
+      - ORDER_REFUND_FAILED
+      - ORDER_REFUNDED
+      - ORDER_PLACED
+      - ORDER_PAID
+      example: ORDER_PLACED
+    ChargingKeyOrdersListResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/ChargingKeyOrdersListItem'
+      description: Response containing charging key orders for a user.
+    InvalidRequestErrorResponse:
+      title: InvalidRequestErrorResponse
+      type: object
+      required:
+      - message
+      - fields
+      properties:
+        message:
+          type: string
+        fields:
+          type: array
+          items:
+            title: InvalidField
+            type: object
+            required:
+            - name
+            - message
+            - rejectedValue
+            properties:
+              name:
+                type: string
+              message:
+                type: string
+                example: UserId is not correct
+              rejectedValue:
+                type: string
+    ChargingKeyOrderResponse:
+      title: ChargingKeyOrderResponse
+      type: object
+      required:
+      - id
+      - state
+      properties:
+        id:
+          type: string
+          example: 9aE20Rmj0v
+          description: Unique identifier of the created charging key order.
+        state:
+          $ref: '#/components/schemas/OrderState'
+          description: Current lifecycle state of the charging key order.
+        clientSecret:
+          type: string
+          example: pi_1J5J9v3sZvKYlo2C5J9v2eZv
+          description: If Stripe payment requires a 3DS authentication, this field will be populated with the clientSecret from Stripe, which should be sent back to client side Stripe SDK for user authentication.
+      description: Result returned after creating a charging key order.
+    ChargingKeyAddress:
+      type: object
+      properties:
+        companyName:
+          type: string
+          example: Plusurfing
+          description: Company name for business delivery addresses.
+        firstName:
+          type: string
+          example: Luck
+          description: Recipient first name.
+        lastName:
+          type: string
+          example: Thomson
+          description: Recipient last name.
+        addressLine1:
+          type: string
+          example: Rättarvägen 3
+          description: Primary street address line.
+        addressLine2:
+          type: string
+          example: Rättarvägen 3
+          description: Secondary address line such as apartment or suite.
+        postalCode:
+          type: string
+          example: 12345
+          description: Postal or ZIP code.
+        city:
+          type: string
+          example: Solna
+          description: City name.
+        country:
+          type: string
+          example: Sweden
+          description: Country code in ISO 3166-1 alpha-2 format.
+      description: Postal address associated with a charging key order.
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      properties:
+        message:
+          type: string
+    ChargingKeyOrdersListItem:
+      type: object
+      required:
+      - id
+      - created
+      - updated
+      - state
+      - quantity
+      properties:
+        id:
+          type: string
+          example: vrj82A9EpJ
+          description: Unique identifier of the order.
+        created:
+          type: string
+          format: date-time
+          example: '2022-04-07T11:30:57.000Z'
+          description: UTC timestamp when this order was created.
+        updated:
+          type: string
+          format: date-time
+          example: '2022-04-07T11:30:57.000Z'
+          description: UTC timestamp when this order was last updated.
+        address:
+          $ref: '#/components/schemas/ChargingKeyAddress'
+          description: Shipping address associated with this order.
+        quantity:
+          type: number
+          example: 1
+          description: Number of charging keys included in the order.
+        currency:
+          type: string
+          example: SEK
+          description: 3-letter currency code
+        priceMinorInclVat:
+          type: integer
+          format: int32
+          example: 1010
+          description: price in minor units (example value is 10.10 SEK)
+        state:
+          $ref: '#/components/schemas/OrderState'
+          description: Current order state.
+        hasReceipt:
+          type: boolean
+          example: false
+          description: Indicates whether a receipt is available for this order.
+      description: A single charging key order entry in a list response.
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
