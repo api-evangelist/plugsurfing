@@ -12,7 +12,15 @@ x-tier-reason: enrichment pass 2026-10-14 (modular-v1; was harvest)
 specificationVersion: '0.20'
 created: '2026-10-14'
 modified: '2026-10-14'
+x-docs-platform: mintlify
+x-docs-platform-confidence: medium
+x-docs-platform-checked: 2026-10-17
 tags:
+- Company
+- EV Charging
+- Roaming
+- Europe
+tags_raw:
 - Company
 - EVCharging
 - API
@@ -271,6 +279,8 @@ apis:
   humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
   baseURL: https://{environment}.plugsurfing.com
   tags:
+  - Geo Search
+  tags_raw:
   - Geosearch
   properties:
   - type: OpenAPI
@@ -386,6 +396,8 @@ apis:
   humanURL: https://developer.plugsurfing.com/docs/drive-api/about-drive-api
   baseURL: https://{environment}.plugsurfing.com
   tags:
+  - User
+  tags_raw:
   - Users
   properties:
   - type: OpenAPI
